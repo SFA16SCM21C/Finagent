@@ -1,5 +1,5 @@
 from src.transactions import fetch_and_save_transactions
-from src.plaidtransactions import clean_transactions
+from src.clean_transactions import clean_transactions
 
 def main():
     """Main function to run the FinAgent transaction pipeline."""

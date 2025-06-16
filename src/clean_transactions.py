@@ -25,7 +25,7 @@ def clean_transactions(input_path="data/transactions.json", output_path="data/tr
         df = df[columns]
 
         # Drop rows missing critical fields
-        df = df.dropna(subset=['date', 'amount'])
+        df = df.dropna(subset=['amount'])
 
         # Fill missing merchant_name with name or "Unknown"
         df['merchant_name'] = df['merchant_name'].fillna(df['name']).fillna('Unknown')
@@ -42,10 +42,13 @@ def clean_transactions(input_path="data/transactions.json", output_path="data/tr
         # Map to simplified categories
         df['category'] = df['primary_category'].map(CATEGORY_MAPPING).fillna('Uncategorized')
 
-        # Convert date to datetime
-        df['date'] = pd.to_datetime(df['date'])
+        # Convert date to datetime, coerce invalid dates to NaT
+        df['date'] = pd.to_datetime(df['date'], errors='coerce')
 
-        # Clean merchant names (lowercase, remove store numbers)
+        # Drop rows with invalid dates (NaT)
+        df = df.dropna(subset=['date'])
+
+        # Clean merchant names (lowercase, remove numbers)
         df['merchant_name'] = df['merchant_name'].str.lower().str.replace(r'\d+', '', regex=True).str.strip()
 
         # Remove duplicates based on transaction_id
