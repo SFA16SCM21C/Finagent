@@ -1,79 +1,69 @@
+import pandas as pd
 import os
-import plaid
-from plaid.api import plaid_api
-from plaid.model.products import Products
-from plaid.model.sandbox_public_token_create_request import SandboxPublicTokenCreateRequest
-from plaid.model.item_public_token_exchange_request import ItemPublicTokenExchangeRequest
-from plaid.model.transactions_sync_request import TransactionsSyncRequest
-from datetime import datetime, timedelta
-from dotenv import load_dotenv
 
-# Load environment variables from .env file
-load_dotenv()
-client_id = os.getenv("PLAID_CLIENT_ID")
-secret = os.getenv("PLAID_SECRET")
-env = os.getenv("PLAID_ENV")
+# Category mapping based on personal_finance_category.primary
+CATEGORY_MAPPING = {
+    'FOOD_AND_DRINK': 'Food',
+    'AUTO_AND_TRANSPORT': 'Transportation',
+    'BILLS_AND_UTILITIES': 'Bills',
+    'SHOPPING': 'Shopping',
+    'ENTERTAINMENT': 'Entertainment',
+    'TRANSFER': 'Other',
+    'PAYMENT': 'Other',
+    'INCOME': 'Other'
+}
 
-# Validate environment variables
-if not all([client_id, secret, env]):
-    raise ValueError("Missing required environment variables in .env file")
+def clean_transactions(input_path="data/transactions.json", output_path="data/transactions_cleaned.json"):
+    """Clean and standardize transaction data from JSON."""
+    try:
+        # Load transactions
+        df = pd.read_json(input_path)
+        print("Loaded transactions for cleaning.")
 
-configuration = plaid.Configuration(
-    host=plaid.Environment.Sandbox,
-    api_key={
-        'clientId': client_id,
-        'secret': secret,
-        'plaidVersion': '2020-09-14'
-    }
-)
-api_client = plaid.ApiClient(configuration)
-client = plaid_api.PlaidApi(api_client)
+        # Select relevant columns
+        columns = ['transaction_id', 'date', 'merchant_name', 'name', 'amount', 'personal_finance_category', 'category', 'account_id']
+        df = df[columns]
 
-try:
-    # Step 1: Create a public token in sandbox
-    print("Env loaded with details")
-    
-    pt_request = SandboxPublicTokenCreateRequest(
-        institution_id="ins_109508",
-        initial_products=[Products('transactions')]
-    )
-    pt_response = client.sandbox_public_token_create(pt_request)
-    public_token = pt_response.public_token
-    
-    print("Public token generated")
-    
-    # Step 2: Exchange public token for access token
-    at_request = ItemPublicTokenExchangeRequest(
-        public_token=public_token
-    )
-    at_response = client.item_public_token_exchange(at_request)
-    #access_token = at_response.access_token
-    access_token = 'access-sandbox-9edbddce-23cc-4f2e-8614-2cfea6713146'
-    
-    print("Access token generated")
-    
-    # Step 3: Fetch transactions for the last 30 days
-    request = TransactionsSyncRequest(
-        access_token=access_token,
-    )
-    response = client.transactions_sync(request)
-    transactions = response['added']
-    
-    print("Transactions found")
-    while (response['has_more']):
-        request = TransactionsSyncRequest(
-            access_token=access_token,
-            cursor=response['next_cursor']
-        )
-        response = client.transactions_sync(request)
-        transactions += response['added']
-        
-    
-    for transaction in transactions:
-        name = transaction.name
-        date = transaction.date
-        amount = transaction.amount
-        print(f"Transaction on {date} at {date}: ${amount:.2f}")
+        # Drop rows missing critical fields
+        df = df.dropna(subset=['date', 'amount'])
 
-except Exception as e:
-    print(f"Error: {e}")
+        # Fill missing merchant_name with name or "Unknown"
+        df['merchant_name'] = df['merchant_name'].fillna(df['name']).fillna('Unknown')
+
+        # Extract primary category from personal_finance_category or fall back to category
+        def get_category(row):
+            if isinstance(row['personal_finance_category'], dict) and 'primary' in row['personal_finance_category']:
+                return row['personal_finance_category']['primary']
+            if isinstance(row['category'], list) and row['category']:
+                return row['category'][0]
+            return 'Uncategorized'
+        df['primary_category'] = df.apply(get_category, axis=1)
+
+        # Map to simplified categories
+        df['category'] = df['primary_category'].map(CATEGORY_MAPPING).fillna('Uncategorized')
+
+        # Convert date to datetime
+        df['date'] = pd.to_datetime(df['date'])
+
+        # Clean merchant names (lowercase, remove store numbers)
+        df['merchant_name'] = df['merchant_name'].str.lower().str.replace(r'\d+', '', regex=True).str.strip()
+
+        # Remove duplicates based on transaction_id
+        df = df.drop_duplicates(subset=['transaction_id'])
+
+        # Select final columns
+        final_columns = ['transaction_id', 'date', 'merchant_name', 'amount', 'category', 'account_id']
+        df = df[final_columns]
+
+        # Ensure output directory exists
+        os.makedirs(os.path.dirname(output_path), exist_ok=True)
+
+        # Save cleaned data
+        df.to_json(output_path, orient='records', indent=2, date_format='iso')
+        print(f"Cleaned transactions saved to {output_path}")
+
+        return df
+
+    except Exception as e:
+        print(f"Error cleaning transactions: {e}")
+        return pd.DataFrame()
