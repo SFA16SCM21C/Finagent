@@ -10,7 +10,11 @@ CATEGORY_MAPPING = {
     'ENTERTAINMENT': 'Entertainment',
     'TRANSFER': 'Other',
     'PAYMENT': 'Other',
-    'INCOME': 'Other'
+    'INCOME': 'Other',
+    'TRAVEL': 'Travel',
+    'GENERAL_MERCHANDISE': 'Shopping',
+    'TRANSPORTATION': 'Transportation',
+    'LOAN_PAYMENTS': 'Other'
 }
 
 def clean_transactions(input_path="data/transactions.json", output_path="data/transactions_cleaned.json"):
@@ -21,11 +25,24 @@ def clean_transactions(input_path="data/transactions.json", output_path="data/tr
         print("Loaded transactions for cleaning.")
 
         # Select relevant columns
-        columns = ['transaction_id', 'date', 'merchant_name', 'name', 'amount', 'personal_finance_category', 'category', 'account_id']
+        columns = ['transaction_id', 'date', 'authorized_date', 'merchant_name', 'name', 'amount', 'personal_finance_category', 'category', 'account_id']
         df = df[columns]
 
         # Drop rows missing critical fields
-        df = df.dropna(subset=['amount'])
+        df = df.dropna(subset=['date', 'amount'])
+
+        # Convert date and authorized_date to datetime
+        df['date'] = pd.to_datetime(df['date'], errors='coerce')
+        df['authorized_date'] = pd.to_datetime(df['authorized_date'], errors='coerce')
+
+        # Adjust date for budgeting: use authorized_date if date is first of month and authorized_date is prior month
+        def adjust_date(row):
+            if pd.isna(row['authorized_date']):
+                return row['date']
+            if row['date'].day == 1 and row['authorized_date'].month == row['date'].month - 1:
+                return row['authorized_date']
+            return row['date']
+        df['date'] = df.apply(adjust_date, axis=1)
 
         # Fill missing merchant_name with name or "Unknown"
         df['merchant_name'] = df['merchant_name'].fillna(df['name']).fillna('Unknown')
@@ -42,14 +59,11 @@ def clean_transactions(input_path="data/transactions.json", output_path="data/tr
         # Map to simplified categories
         df['category'] = df['primary_category'].map(CATEGORY_MAPPING).fillna('Uncategorized')
 
-        # Convert date to datetime, coerce invalid dates to NaT
-        df['date'] = pd.to_datetime(df['date'], errors='coerce')
-
         # Drop rows with invalid dates (NaT)
         df = df.dropna(subset=['date'])
 
-        # Clean merchant names (lowercase, remove numbers)
-        df['merchant_name'] = df['merchant_name'].str.lower().str.replace(r'\d+', '', regex=True).str.strip()
+        # Clean merchant names (lowercase, remove numbers and special characters)
+        df['merchant_name'] = df['merchant_name'].str.lower().str.replace(r'\d+', '', regex=True).str.replace(r'\*\/\/', '', regex=True).str.strip()
 
         # Remove duplicates based on transaction_id
         df = df.drop_duplicates(subset=['transaction_id'])
