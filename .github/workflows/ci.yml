@@ -3,10 +3,10 @@ name: CI/CD Pipeline for FinAgent
 on:
   push:
     branches:
-      - main
+      - Features
   pull_request:
     branches:
-      - main
+      - Features
 
 jobs:
   build-and-test:
