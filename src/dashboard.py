@@ -5,46 +5,32 @@ import json
 import os
 import plotly.express as px
 import re
+import base64  # Added to handle base64 encoding for image
 
 # Custom CSS for modern, customer-friendly design
 st.markdown(
     """
     <style>
-    .header-container {
-        background-color: #00695C; /* Teal background */
-        padding: 10px;
-        border-radius: 8px;
+    .logo-container {
+        border-radius: 8px 8px 0 0;
         display: flex;
         align-items: center;
         justify-content: center;
+    }
+    .header-container {
+        background-color: #00695C; /* Teal background */
+        padding: 10px;
+        border-radius: 0 0 8px 8px;
+        text-align: center; /* Center the title horizontally */
         box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        min-height: 60px; /* Consistent height */
-        line-height: 60px; /* Match logo height */
-        vertical-align: middle;
+        min-height: 40px;
+        line-height: 40px;
     }
     .header-container h1 {
         color: white; /* White text */
         font-family: 'Roboto', sans-serif;
         margin: 0;
         font-size: 24px;
-        vertical-align: middle;
-    }
-    .logo-container {
-        display: flex;
-        align-items: center; /* Vertical centering */
-        justify-content: center; /* Horizontal centering */
-        padding-left: 25px; /* Rightward shift */
-        padding-top: 0px; /* No top padding */
-        min-height: 60px; /* Match header height */
-        line-height: 60px; /* Match header height */
-        vertical-align: middle;
-    }
-    .logo-container h2 {
-        color: #00695C;
-        font-family: 'Roboto', sans-serif;
-        font-size: 24px; /* Match title size */
-        margin: 0;
-        vertical-align: middle;
     }
     .metric-card {
         background-color: #E0E0E0; /* Light gray */
@@ -77,24 +63,25 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# Header with logo and title side by side
-col_logo, col_title = st.columns([1.5, 3])
-with col_logo:
-    st.markdown('<div class="logo-container">', unsafe_allow_html=True)
-    logo_path = "data/finagent_logo.png"
-    if os.path.exists(logo_path):
-        st.image(logo_path, width=100, use_column_width=False, caption="FinAgent Logo")
-    else:
-        st.markdown(
-            "<h2 style='text-align: center; color: #00695C; font-family: Roboto, sans-serif;'>📈 FinAgent</h2>",
-            unsafe_allow_html=True
-        )
-    st.markdown('</div>', unsafe_allow_html=True)
-with col_title:
+# Header with logo centered on first line and title on second line
+st.markdown('<div class="logo-container">', unsafe_allow_html=True)
+logo_path = "data/finagent_logo.png"
+if os.path.exists(logo_path):
+    with open(logo_path, "rb") as f:
+        logo_base64 = base64.b64encode(f.read()).decode()
     st.markdown(
-        '<div class="header-container"><h1>FinAgent Financial Dashboard</h1></div>',
+        f'<img src="data:image/png;base64,{logo_base64}" '
+        'style="display: block; margin-left: auto; margin-right: auto; max-height: 60px;" />',
         unsafe_allow_html=True
     )
+else:
+    st.markdown(
+        "<h2 style='text-align: center; color: #00695C; font-family: Roboto, sans-serif;'>📈 FinAgent</h2>",
+        unsafe_allow_html=True
+    )
+st.markdown('</div>', unsafe_allow_html=True)
+
+st.markdown('<div class="header-container"><h1>FinAgent Financial Dashboard</h1></div>', unsafe_allow_html=True)
 
 # Budget Distribution and Spending Analysis in two columns
 st.markdown("<h2 class='section-header'>Financial Overview</h2>", unsafe_allow_html=True)
