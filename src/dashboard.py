@@ -1,3 +1,4 @@
+# src/dashboard.py
 import streamlit as st
 import pandas as pd
 import sqlite3
@@ -5,7 +6,8 @@ import json
 import os
 import plotly.express as px
 import re
-import base64  # Added to handle base64 encoding for image
+import base64
+from advisor import get_advice, advisor  # Import LLM functions
 
 # Custom CSS for modern, customer-friendly design
 st.markdown(
@@ -136,6 +138,8 @@ with col3:
         with open(advice_path, "r") as f:
             advice = json.load(f)
         st.markdown("<h3 class='section-header'>Financial Advice</h3>", unsafe_allow_html=True)
+        llm_advice = get_advice()
+        st.write(f"- {llm_advice}")
         for a in advice["advice"]:
             st.write(f"- {a}")
     else:
@@ -150,17 +154,13 @@ with col4:
         for qa in advice["qa_responses"]:
             st.write(f"**Query**: {qa['query']}")
             st.write(f"**Answer**: {qa['answer']}")
-        query = st.text_input("Ask a financial question (e.g., 'How much on Shopping?')", key="query_input")
+        query = st.text_input("Ask a financial question (e.g., 'What’s my best savings plan?')", key="query_input")
         if query:
-            category_match = re.search(r'\bon\s+(\w+)', query, re.IGNORECASE)
-            if category_match:
-                category = category_match.group(1).capitalize()
-                df = pd.read_json("data/transactions_cleaned.json")
-                df['date'] = pd.to_datetime(df['date'])
-                df_month = df[(df['date'].dt.year == 2025) & (df['date'].dt.month == 6) & (df['amount'] > 0)]
-                total = df_month[df_month['category'] == category]['amount'].sum()
-                st.write(f"You spent ${total:.2f} on {category} in June 2025.")
-            else:
-                st.warning("Please phrase your query as 'How much on [Category]?'")
+            prompt = (
+                f"You are a financial advisor. Answer: {query} based on spending data Needs=13.565, "
+                f"Wants=97.565, Savings/Debt=25.0, and risks Low Savings/Debt spending: 0.6%."
+            )
+            response = advisor(prompt, max_length=150, num_return_sequences=1, temperature=0.7)[0]['generated_text']
+            st.write(f"**Response**: {response.strip()}")
     else:
         st.error("Advice log not found at data/advice_log.json")
