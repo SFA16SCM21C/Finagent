@@ -1,0 +1,24 @@
+{
+  "month": "2025-06",
+  "income": 4000.0,
+  "income_source": "default",
+  "estimated_income": 4.22,
+  "needs": {
+    "amount": 13.565,
+    "percentage": 0.33912499999999995,
+    "target_percentage": 50.0,
+    "status": "Under"
+  },
+  "wants": {
+    "amount": 97.565,
+    "percentage": 2.4391249999999998,
+    "target_percentage": 30.0,
+    "status": "Under"
+  },
+  "savings_debt": {
+    "amount": 25.0,
+    "percentage": 0.625,
+    "target_percentage": 20.0,
+    "status": "Under"
+  }
+}

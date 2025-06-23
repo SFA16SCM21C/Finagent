@@ -1,0 +1,16 @@
+{
+  "month": "2025-06",
+  "advice": [
+    "Increase debt payments by $100.00/month to reduce interest costs."
+  ],
+  "qa_responses": [
+    {
+      "query": "How much on Food in June 2025?",
+      "answer": "You spent $16.33 on Food in June 2025."
+    },
+    {
+      "query": "What\u2019s my budget status for June 2025?",
+      "answer": "Needs: 0.3% (under 50%), Wants: 2.4% (under 30%), Savings/Debt: 0.6% (under 20%). Risk: Low Savings/Debt spending: 0.6% (below 10%)."
+    }
+  ]
+}

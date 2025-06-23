@@ -1,0 +1,60 @@
+[
+    {
+      "transaction_id": "tx1",
+      "account_id": "acc1",
+      "date": "2025-06-15",
+      "merchant_name": "McDonald's",
+      "name": "McDonald's #3322",
+      "amount": 12.0,
+      "personal_finance_category": {
+        "primary": "FOOD_AND_DRINK",
+        "detailed": "FOOD_AND_DRINK_FAST_FOOD"
+      },
+      "category": ["Food and Drink"]
+    },
+    {
+      "transaction_id": "tx2",
+      "account_id": "acc2",
+      "date": null,
+      "merchant_name": null,
+      "name": null,
+      "amount": 25.0,
+      "personal_finance_category": null,
+      "category": null
+    },
+    {
+      "transaction_id": "tx3",
+      "account_id": "acc3",
+      "date": "2025-06-14",
+      "merchant_name": null,
+      "name": "Uber",
+      "amount": null,
+      "personal_finance_category": {
+        "primary": "AUTO_AND_TRANSPORT",
+        "detailed": "AUTO_AND_TRANSPORT_RIDE_SHARE"
+      },
+      "category": ["Transportation"]
+    },
+    {
+      "transaction_id": "tx4",
+      "account_id": "acc4",
+      "date": "2025-06-13",
+      "merchant_name": "Amazon",
+      "name": "Amazon.com",
+      "amount": 89.99,
+      "personal_finance_category": {
+        "primary": "UNKNOWN_CATEGORY"
+      },
+      "category": null
+    },
+    {
+      "transaction_id": "tx5",
+      "account_id": "acc5",
+      "date": "invalid-date",
+      "merchant_name": "Netflix",
+      "name": "Netflix Subscription",
+      "amount": 15.99,
+      "personal_finance_category": null,
+      "category": ["Entertainment"]
+    }
+  ]
