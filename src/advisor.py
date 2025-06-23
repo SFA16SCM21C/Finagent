@@ -1,98 +1,46 @@
-import pandas as pd
+# src/advisor.py
+from transformers import pipeline
 import sqlite3
+import pandas as pd
 import json
-import os
-import re
+import numpy as np
 
-def generate_advice_and_qa(db_path="data/finagent.db", transactions_path="data/transactions_cleaned.json", output_path="data/advice_log.json"):
-    """Generate financial advice and answer queries using SQLite reports and transactions."""
-    try:
-        print("Generating advice...")
+try:
+    advisor = pipeline("text-generation", model="gpt2", framework="pt", device="cpu", truncation=True)
+except Exception as e:
+    print(f"Failed to initialize pipeline: {e}. Please ensure PyTorch and NumPy are installed.")
+    raise
 
-        # Connect to SQLite
-        conn = sqlite3.connect(db_path)
-        report_df = pd.read_sql_query("SELECT * FROM monthly_reports WHERE month = '2025-06'", conn)
-        conn.close()
+def generate_advice(spending_data, risks):
+    """Generate financial advice based on spending data and risks."""
+    prompt = (
+        f"You are a financial advisor. Based on the following spending data: Needs={spending_data['Needs']}, "
+        f"Wants={spending_data['Wants']}, Savings/Debt={spending_data['Savings/Debt']}, and risks: {risks}, "
+        f"provide a concise and actionable financial plan."
+    )
+    response = advisor(prompt, max_length=150, num_return_sequences=1, temperature=0.7)[0]['generated_text']
+    return response.strip()
 
-        # Get latest report
-        if report_df.empty:
-            print("No reports found in database for 2025-06.")
-            return {}
-        report = report_df.iloc[0].to_dict()
-
-        # Generate advice based on risks
-        advice = []
-        risks = report['risks']
-        income = report['income']
-
-        if "Low Savings/Debt" in risks:
-            advice.append(f"Increase debt payments by ${income*0.025:.2f}/month to reduce interest costs.")
-        if "High Wants" in risks:
-            advice.append(f"Reduce Wants spending by ${report['wants_amount']*0.4:.2f} to align with 30% target.")
-
-        # Load transactions for Q&A
-        df = pd.read_json(transactions_path)
-        df['date'] = pd.to_datetime(df['date'])
-
-        # Hardcoded queries for testing
-        queries = [
-            "How much on Food in June 2025?",
-            "What’s my budget status for June 2025?"
-        ]
-        qa_responses = []
-
-        for query in queries:
-            # Parse query
-            category_match = re.search(r'\bon\s+(\w+)', query, re.IGNORECASE)
-            is_budget_status = "budget status" in query.lower()
-
-            if is_budget_status:
-                answer = (
-                    f"Needs: {(report['needs_amount']/income*100):.1f}% (under 50%), "
-                    f"Wants: {(report['wants_amount']/income*100):.1f}% (under 30%), "
-                    f"Savings/Debt: {(report['savings_debt_amount']/income*100):.1f}% (under 20%). "
-                    f"Risk: {risks if risks != 'None' else 'None'}."
-                )
-                qa_responses.append({"query": query, "answer": answer})
-            elif category_match:
-                category = category_match.group(1).capitalize()
-                df_query = df[
-                    (df['category'] == category) &
-                    (df['date'].dt.year == 2025) &
-                    (df['date'].dt.month == 6)
-                ]
-                total = df_query[df_query['amount'] > 0]['amount'].sum()
-                answer = f"You spent ${total:.2f} on {category} in June 2025."
-                qa_responses.append({"query": query, "answer": answer})
-
-        # Validate responses
-        for qa in qa_responses:
-            if "Food" in qa['query'] and abs(float(qa['answer'].split('$')[1].split(' ')[0]) - 16.33) > 0.01:
-                print(f"Warning: Food spending answer ({qa['answer']}) does not match expected $16.33.")
-
-        # Print results
-        print("Advice:")
-        for a in advice:
-            print(f"- {a}")
-        if not advice:
-            print("- None")
-        print("Q&A Responses:")
-        for qa in qa_responses:
-            print(f"- Query: {qa['query']}\n  Answer: {qa['answer']}")
-
-        # Save log
-        log = {
-            "month": report['month'],
-            "advice": advice,
-            "qa_responses": qa_responses
+def get_advice(month="2025-06"):
+    """Fetch advice for a specific month from database."""
+    conn = sqlite3.connect("data/finagent.db")
+    report = pd.read_sql_query(f"SELECT * FROM monthly_reports WHERE month = '{month}'", conn)
+    conn.close()
+    if not report.empty:
+        spending = {
+            "Needs": float(report.iloc[0]['needs_amount']),
+            "Wants": float(report.iloc[0]['wants_amount']),
+            "Savings/Debt": float(report.iloc[0]['savings_debt_amount'])
         }
-        os.makedirs(os.path.dirname(output_path), exist_ok=True)
-        with open(output_path, "w") as f:
-            json.dump(log, f, indent=2)
-        print(f"Advice log saved to {output_path}")
+        risks = report.iloc[0]['risks']
+        return generate_advice(spending, risks)
+    return "No data available for advice."
 
-        return log
+def get_rule_based_advice():
+    """Fetch legacy rule-based advice as a fallback."""
+    with open("data/advice_log.json", "r") as f:
+        advice = json.load(f)
+    return advice.get("advice", ["No advice available."])
 
-    except Exception as e:
-        print(f"Error generating advice: {e}")
-        return {}
+if __name__ == "__main__":
+    print(get_advice())
