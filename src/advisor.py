@@ -4,6 +4,7 @@ import sqlite3
 import pandas as pd
 import json
 import numpy as np
+import os
 
 try:
     advisor = pipeline("text-generation", model="gpt2", framework="pt", device="cpu", truncation=True)
@@ -23,7 +24,10 @@ def generate_advice(spending_data, risks):
 
 def get_advice(month="2025-06"):
     """Fetch advice for a specific month from database."""
-    conn = sqlite3.connect("data/finagent.db")
+    # Use absolute path relative to project root
+    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    db_path = os.path.join(base_dir, "data", "finagent.db")
+    conn = sqlite3.connect(db_path)
     report = pd.read_sql_query(f"SELECT * FROM monthly_reports WHERE month = '{month}'", conn)
     conn.close()
     if not report.empty:
@@ -38,7 +42,9 @@ def get_advice(month="2025-06"):
 
 def get_rule_based_advice():
     """Fetch legacy rule-based advice as a fallback."""
-    with open("data/advice_log.json", "r") as f:
+    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    advice_path = os.path.join(base_dir, "data", "advice_log.json")
+    with open(advice_path, "r") as f:
         advice = json.load(f)
     return advice.get("advice", ["No advice available."])
 
