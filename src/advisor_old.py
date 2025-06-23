@@ -81,6 +81,7 @@ def generate_advice_and_qa(db_path="data/finagent.db", transactions_path="data/t
             print(f"- Query: {qa['query']}\n  Answer: {qa['answer']}")
 
         # Save log
+        #testing CI/CD run
         log = {
             "month": report['month'],
             "advice": advice,
