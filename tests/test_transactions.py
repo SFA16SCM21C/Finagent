@@ -120,5 +120,61 @@ class TestTransactionCleaner(unittest.TestCase):
         cleaned = clean_transactions(data)
         self.assertEqual(len(cleaned), 1)
 
+    def test_missing_personal_finance_category(self):
+        """Test handling transactions without personal_finance_category."""
+        data = [
+            {
+                "transaction_id": "tx1",
+                "account_id": "acc1",
+                "date": "2025-06-15",
+                "authorized_date": "2025-06-15",
+                "merchant_name": "Target",
+                "name": "Target Purchase",
+                "amount": 30.0,
+                "category": ["SHOPPING"]
+            }
+        ]
+        cleaned = clean_transactions(data)
+        self.assertEqual(len(cleaned), 1)
+        self.assertEqual(cleaned.iloc[0]["category"], "Shopping")
+
+    def test_multiple_categories(self):
+        """Test extracting primary category from multiple category entries."""
+        data = [
+            {
+                "transaction_id": "tx1",
+                "account_id": "acc1",
+                "date": "2025-06-15",
+                "authorized_date": "2025-06-15",
+                "merchant_name": "Travel Agency",
+                "name": "Travel Booking",
+                "amount": 200.0,
+                "personal_finance_category": {"primary": "TRAVEL"},
+                "category": ["Travel", "Transportation", "Booking"]
+            }
+        ]
+        cleaned = clean_transactions(data)
+        self.assertEqual(len(cleaned), 1)
+        self.assertEqual(cleaned.iloc[0]["category"], "Travel")
+
+    def test_negative_amount(self):
+        """Test handling negative amounts (e.g., refunds)."""
+        data = [
+            {
+                "transaction_id": "tx1",
+                "account_id": "acc1",
+                "date": "2025-06-15",
+                "authorized_date": "2025-06-15",
+                "merchant_name": "McDonald's",
+                "name": "McDonald's Refund",
+                "amount": -10.0,
+                "personal_finance_category": {"primary": "FOOD_AND_DRINK"},
+                "category": ["Food and Drink"]
+            }
+        ]
+        cleaned = clean_transactions(data)
+        self.assertEqual(len(cleaned), 1)
+        self.assertEqual(cleaned.iloc[0]["amount"], -10.0)  # Allow negative amounts
+
 if __name__ == "__main__":
     unittest.main()
