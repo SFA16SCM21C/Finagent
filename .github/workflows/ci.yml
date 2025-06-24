@@ -32,7 +32,6 @@ jobs:
           pytest . --verbose --cov=. --cov-report=xml
 
       - name: Check code formatting (optional)
-        working-directory: src
         run: |
           pip install black
           black --check src/
