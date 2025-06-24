@@ -2,7 +2,7 @@
 import pandas as pd
 import os
 
-# Enhanced category mapping with explicit description mappings
+# Category mapping based on personal_finance_category.primary or category
 CATEGORY_MAPPING = {
     'FOOD_AND_DRINK': 'Food',
     'AUTO_AND_TRANSPORT': 'Transportation',
@@ -15,14 +15,11 @@ CATEGORY_MAPPING = {
     'TRAVEL': 'Travel',
     'GENERAL_MERCHANDISE': 'Shopping',
     'TRANSPORTATION': 'Transportation',
-    'LOAN_PAYMENTS': 'Other',
-    'Grocery': 'Food',  # Explicit for test case
-    'Transport': 'Transportation',
-    'Shopping': 'Shopping'
+    'LOAN_PAYMENTS': 'Other'
 }
 
 def clean_transactions(transactions, output_path="data/transactions_cleaned.json"):
-    """Clean and standardize transaction data."""
+    """Clean and standardize transaction data based on API structure."""
     try:
         if not transactions or not isinstance(transactions, (list, pd.DataFrame)):
             return pd.DataFrame()
@@ -34,20 +31,11 @@ def clean_transactions(transactions, output_path="data/transactions_cleaned.json
             df = transactions.copy()
         print("Loaded transactions for cleaning.")
 
-        # Select available columns, ensuring minimal structure
-        available_columns = [col for col in ['transaction_id', 'date', 'authorized_date', 'merchant_name', 'name', 'amount', 'personal_finance_category', 'category', 'account_id', 'description'] if col in df.columns]
-        if not available_columns:
-            df = df  # Keep all columns if none match
-        else:
-            df = df[available_columns]
+        # Select available columns matching API structure
+        available_columns = [col for col in ['transaction_id', 'date', 'authorized_date', 'merchant_name', 'name', 'amount', 'personal_finance_category', 'category', 'account_id'] if col in df.columns]
+        df = df[available_columns] if available_columns else df
 
-        # Ensure critical fields exist, add defaults if missing
-        if 'date' not in df.columns:
-            df['date'] = pd.NaT
-        if 'amount' not in df.columns:
-            df['amount'] = 0.0
-
-        # Drop rows missing critical fields after defaults
+        # Drop rows missing critical fields
         df = df.dropna(subset=['date', 'amount'])
 
         # Convert dates to datetime
@@ -65,26 +53,20 @@ def clean_transactions(transactions, output_path="data/transactions_cleaned.json
                 return row['date']
             df['date'] = df.apply(adjust_date, axis=1)
 
-        # Fill missing merchant_name
+        # Fill missing merchant_name with name
         if 'merchant_name' in df.columns and 'name' in df.columns:
-            df['merchant_name'] = df['merchant_name'].fillna(df['name']).fillna('Unknown')
+            df['merchant_name'] = df['merchant_name'].fillna(df['name'])
         elif 'name' in df.columns:
-            df['merchant_name'] = df['name'].fillna('Unknown')
-        elif 'merchant_name' in df.columns:
-            df['merchant_name'] = df['merchant_name'].fillna('Unknown')
+            df['merchant_name'] = df['name']
 
-        # Enhanced category mapping with description priority
+        # Category mapping based on API fields
         def get_category(row):
-            if 'description' in df.columns and isinstance(row['description'], str):
-                desc = row['description'].capitalize()
-                return CATEGORY_MAPPING.get(desc, desc)  # Direct mapping or keep capitalized
             if 'personal_finance_category' in df.columns and isinstance(row['personal_finance_category'], dict) and 'primary' in row['personal_finance_category']:
                 return row['personal_finance_category']['primary']
             if 'category' in df.columns and isinstance(row['category'], list) and row['category']:
-                return row['category'][0]
+                return row['category'][0].split()[0] if row['category'] else 'Uncategorized'  # Extract primary category
             return 'Uncategorized'
-        df['primary_category'] = df.apply(get_category, axis=1)
-        df['category'] = df['primary_category'].map(CATEGORY_MAPPING).fillna(df['primary_category'])
+        df['category'] = df.apply(get_category, axis=1).map(CATEGORY_MAPPING).fillna('Uncategorized')
 
         # Drop rows with invalid dates
         df = df.dropna(subset=['date'])
@@ -93,15 +75,11 @@ def clean_transactions(transactions, output_path="data/transactions_cleaned.json
         if 'merchant_name' in df.columns:
             df['merchant_name'] = df['merchant_name'].str.lower().str.replace(r'\d+', '', regex=True).str.replace(r'\*\/\/', '', regex=True).str.strip()
 
-        # Enhanced deduplication logic
-        duplicate_cols = []
-        for col in ['date', 'amount', 'description']:  # Prioritize content fields
-            if col in df.columns:
-                duplicate_cols.append(col)
+        # Deduplication based on transaction_id as primary key (API standard)
         if 'transaction_id' in df.columns:
-            duplicate_cols.append('transaction_id')  # Add as secondary key
-        if duplicate_cols:
-            df = df.drop_duplicates(subset=duplicate_cols, keep='first')
+            df = df.drop_duplicates(subset=['transaction_id'], keep='first')
+        else:
+            df = df.drop_duplicates(subset=['date', 'amount', 'merchant_name'], keep='first')  # Fallback
 
         # Select final columns
         final_columns = [col for col in ['transaction_id', 'date', 'merchant_name', 'amount', 'category', 'account_id'] if col in df.columns]
