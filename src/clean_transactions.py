@@ -1,3 +1,4 @@
+# src/clean_transactions.py
 import pandas as pd
 import os
 
@@ -17,19 +18,19 @@ CATEGORY_MAPPING = {
     'LOAN_PAYMENTS': 'Other'
 }
 
-def clean_transactions(transactions, input_path="data/transactions.json", output_path="data/transactions_cleaned.json"):
-    """Clean and standardize transaction data from JSON."""
+def clean_transactions(transactions, output_path="data/transactions_cleaned.json"):
+    """Clean and standardize transaction data."""
     try:
         if not transactions:
             return pd.DataFrame()
-        
-        # Load transactions
-        df = pd.read_json(input_path)
+
+        # Use provided transactions directly
+        df = pd.DataFrame(transactions)
         print("Loaded transactions for cleaning.")
 
         # Select relevant columns
         columns = ['transaction_id', 'date', 'authorized_date', 'merchant_name', 'name', 'amount', 'personal_finance_category', 'category', 'account_id']
-        df = df[columns]
+        df = df[columns] if all(col in df.columns for col in columns) else df
 
         # Drop rows missing critical fields
         df = df.dropna(subset=['date', 'amount'])
