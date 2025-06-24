@@ -1,17 +1,17 @@
 # tests/test_transactions.py
 import unittest
-from src.transactions import fetch_transactions
+from src.transactions import fetch_and_save_transactions
 from src.clean_transactions import clean_transactions
 
 class TestTransactionFetcher(unittest.TestCase):
     def test_fetch_invalid_access_token(self):
         """Test fetching with an invalid access token."""
         with self.assertRaises(Exception):
-            fetch_transactions("invalid_token")
+            fetch_and_save_transactions("invalid_token")
 
     def test_fetch_valid_transactions(self):
         """Test fetching valid transactions (mocked in CI)."""
-        transactions = fetch_transactions("valid_token")  # Uses CI mock
+        transactions = fetch_and_save_transactions("valid_token")  # Uses CI mock
         self.assertGreater(len(transactions), 0)
         self.assertIn("date", transactions[0])
         self.assertIn("amount", transactions[0])
