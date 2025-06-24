@@ -27,10 +27,12 @@ jobs:
           pip install pytest
 
       - name: Set working directory and run tests
+        working-directory: src
         run: |
           pytest . --verbose --cov=. --cov-report=xml
 
       - name: Check code formatting (optional)
+        working-directory: src
         run: |
           pip install black
           black --check src/
@@ -38,3 +40,7 @@ jobs:
       - name: Notify on failure (optional)
         if: failure()
         run: echo "Build failed! Please check the logs."
+
+      - name: Build Docker image
+        run: |
+          docker build -t finagent:test .
