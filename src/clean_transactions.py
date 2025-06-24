@@ -17,9 +17,12 @@ CATEGORY_MAPPING = {
     'LOAN_PAYMENTS': 'Other'
 }
 
-def clean_transactions(input_path="data/transactions.json", output_path="data/transactions_cleaned.json"):
+def clean_transactions(transactions, input_path="data/transactions.json", output_path="data/transactions_cleaned.json"):
     """Clean and standardize transaction data from JSON."""
     try:
+        if not transactions:
+            return pd.DataFrame()
+        
         # Load transactions
         df = pd.read_json(input_path)
         print("Loaded transactions for cleaning.")

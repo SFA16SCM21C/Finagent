@@ -1,0 +1,18 @@
+[
+  {
+    "transaction_id":"tx1",
+    "date":"2025-06-15T00:00:00.000",
+    "merchant_name":"mcdonald's",
+    "amount":12.0,
+    "category":"Food",
+    "account_id":"acc1"
+  },
+  {
+    "transaction_id":"tx4",
+    "date":"2025-06-13T00:00:00.000",
+    "merchant_name":"amazon",
+    "amount":89.99,
+    "category":"Uncategorized",
+    "account_id":"acc4"
+  }
+]

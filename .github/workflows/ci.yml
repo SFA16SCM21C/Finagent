@@ -1,19 +1,21 @@
-name: CI/CD Pipeline
+name: CI/CD Pipeline for FinAgent
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - Features
   pull_request:
-    branches: [ main ]
+    branches:
+      - Features
 
 jobs:
-  build:
+  build-and-test:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Set up Python
+      - name: Set up Python 3.12
         uses: actions/setup-python@v4
         with:
           python-version: '3.12'
@@ -24,11 +26,15 @@ jobs:
           pip install -r requirements.txt
           pip install pytest
 
-      - name: Run tests
+      - name: Set working directory and run tests
         run: |
-          pytest src/  # Placeholder; requires test_advisor.py
+          pytest . --verbose --cov=. --cov-report=xml
 
-      - name: Deploy to Streamlit Community Cloud (optional)
-        if: github.ref == 'refs/heads/main' && success()
+      - name: Check code formatting (optional)
         run: |
-          echo "Deploying to Streamlit..."  # Replace with actual deploy script if using Streamlit Cloud
+          pip install black
+          black --check src/
+
+      - name: Notify on failure (optional)
+        if: failure()
+        run: echo "Build failed! Please check the logs."
