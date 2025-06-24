@@ -38,7 +38,7 @@ jobs:
 
       - name: Notify on failure (optional)
         if: failure()
-        run: echo "Build failed! Please check the logs."
+        run: echo "Build failed! Please check logs."
 
       - name: Build Docker image
         run: |
