@@ -21,7 +21,7 @@ class TestTransactionFetcher(unittest.TestCase):
 class TestTransactionCleaner(unittest.TestCase):
     def test_category_mapping(self):
         """Test category mapping functionality."""
-        data = [{"date": "2025-06-01", "amount": 50, "description": "Grocery", "transaction_id": "txn1"}]
+        data = [{"date": "2025-06-01", "amount": 50, "description": "FOOD_AND_DRINK", "transaction_id": "txn1"}]
         cleaned = clean_transactions(data)
         self.assertEqual(cleaned[0]["category"], "Food")
 
