@@ -97,7 +97,6 @@ def generate_advice_and_qa(
             print(f"- Query: {qa['query']}\n  Answer: {qa['answer']}")
 
         # Save log
-        # testing CI/CD run
         log = {"month": report["month"], "advice": advice, "qa_responses": qa_responses}
         os.makedirs(os.path.dirname(output_path), exist_ok=True)
         with open(output_path, "w") as f:
