@@ -15,7 +15,7 @@ class TestTransactionFetcher(unittest.TestCase):
         self.assertGreater(len(transactions), 0)
         self.assertIn("date", transactions[0])
         self.assertIn("amount", transactions[0])
-        self.assertIn("description", transactions[0])
+        self.assertIn("description", transactions[0])  # Should pass with updated mock
         self.assertIn("transaction_id", transactions[0])
 
 class TestTransactionCleaner(unittest.TestCase):

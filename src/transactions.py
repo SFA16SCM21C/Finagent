@@ -1,3 +1,4 @@
+# src/transactions.py
 import json
 import os
 from datetime import date
@@ -7,7 +8,7 @@ class DateEncoder(json.JSONEncoder):
     """Custom JSON encoder to handle datetime.date objects."""
     def default(self, obj):
         if isinstance(obj, date):
-            return obj.isoformat()  # Convert date to string (e.g., "2025-06-10")
+            return obj.isoformat()
         return super().default(obj)
 
 def fetch_and_save_transactions(output_path="data/transactions.json"):
@@ -41,7 +42,6 @@ def fetch_and_save_transactions(output_path="data/transactions.json"):
                     },
                     "category": ["Transportation"]
                 }
-    
             ]
             return transactions
         
