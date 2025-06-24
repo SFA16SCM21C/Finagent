@@ -2,7 +2,7 @@
 import pandas as pd
 import os
 
-# Category mapping based on personal_finance_category.primary or description
+# Enhanced category mapping including description-based fallback
 CATEGORY_MAPPING = {
     'FOOD_AND_DRINK': 'Food',
     'AUTO_AND_TRANSPORT': 'Transportation',
@@ -16,7 +16,7 @@ CATEGORY_MAPPING = {
     'GENERAL_MERCHANDISE': 'Shopping',
     'TRANSPORTATION': 'Transportation',
     'LOAN_PAYMENTS': 'Other',
-    'Grocery': 'Food',
+    'Grocery': 'Food',  # Explicit mapping for test case
     'Transport': 'Transportation',
     'Shopping': 'Shopping'
 }
@@ -61,19 +61,18 @@ def clean_transactions(transactions, output_path="data/transactions_cleaned.json
         elif 'merchant_name' in df.columns:
             df['merchant_name'] = df['merchant_name'].fillna('Unknown')
 
-        # Determine primary category with fallbacks
+        # Enhanced category mapping with description fallback
         def get_category(row):
             if 'personal_finance_category' in df.columns and isinstance(row['personal_finance_category'], dict) and 'primary' in row['personal_finance_category']:
                 return row['personal_finance_category']['primary']
             if 'category' in df.columns and isinstance(row['category'], list) and row['category']:
                 return row['category'][0]
             if 'description' in df.columns and isinstance(row['description'], str):
-                return row['description'].capitalize()
+                desc = row['description'].capitalize()
+                return CATEGORY_MAPPING.get(desc, desc)  # Map description directly
             return 'Uncategorized'
         df['primary_category'] = df.apply(get_category, axis=1)
-
-        # Map to simplified categories
-        df['category'] = df['primary_category'].map(CATEGORY_MAPPING).fillna('Uncategorized')
+        df['category'] = df['primary_category'].map(CATEGORY_MAPPING).fillna(df['primary_category'])
 
         # Drop rows with invalid dates
         df = df.dropna(subset=['date'])
@@ -82,7 +81,7 @@ def clean_transactions(transactions, output_path="data/transactions_cleaned.json
         if 'merchant_name' in df.columns:
             df['merchant_name'] = df['merchant_name'].str.lower().str.replace(r'\d+', '', regex=True).str.replace(r'\*\/\/', '', regex=True).str.strip()
 
-        # Remove duplicates based on available fields
+        # Remove duplicates based on transaction_id, date, amount, and description
         duplicate_cols = ['transaction_id'] if 'transaction_id' in df.columns else []
         for col in ['date', 'amount', 'description']:
             if col in df.columns:
@@ -94,7 +93,7 @@ def clean_transactions(transactions, output_path="data/transactions_cleaned.json
         final_columns = [col for col in ['transaction_id', 'date', 'merchant_name', 'amount', 'category', 'account_id'] if col in df.columns]
         df = df[final_columns] if final_columns else df
 
-        # Ensure output directory exists and save cleaned data
+        # Save the cleaned data
         os.makedirs(os.path.dirname(output_path), exist_ok=True)
         df.to_json(output_path, orient='records', indent=2, date_format='iso')
         print(f"Cleaned transactions saved to {output_path}")
