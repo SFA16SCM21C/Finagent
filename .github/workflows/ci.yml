@@ -29,7 +29,6 @@ jobs:
           pip install pytest
 
       - name: Set working directory and run tests
-        working-directory: src
         run: |
           pytest . --verbose --cov=. --cov-report=xml
 
