@@ -27,6 +27,7 @@ jobs:
           pip install pytest
 
       - name: Set working directory and run tests
+        working-directory: src
         run: |
           pytest . --verbose --cov=. --cov-report=xml
 
@@ -37,4 +38,8 @@ jobs:
 
       - name: Notify on failure (optional)
         if: failure()
-        run: echo "Build failed! Please check the logs."
+        run: echo "Build failed! Please check logs."
+
+      - name: Build Docker image
+        run: |
+          docker build -t finagent:test .

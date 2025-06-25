@@ -1,5 +1,6 @@
 from src.advisor import get_advice
 
+
 def test_advice_import():
     print("Running test_advice_import")
     try:
@@ -7,7 +8,8 @@ def test_advice_import():
         assert True
     except ImportError:
         assert False
-        
+
+
 def test_advice_content():
     get_advice()
     advice = get_advice()
