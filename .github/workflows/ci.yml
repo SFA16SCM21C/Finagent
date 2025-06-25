@@ -3,9 +3,11 @@ name: CI/CD Pipeline for FinAgent
 on:
   push:
     branches:
+      - master
       - Features
   pull_request:
     branches:
+      - master
       - Features
 
 jobs:
@@ -27,7 +29,7 @@ jobs:
           pip install pytest
 
       - name: Set working directory and run tests
-        working-directory: src
+        working-directory: src_old
         run: |
           pytest . --verbose --cov=. --cov-report=xml
 
