@@ -1,7 +1,8 @@
+# src/main.py
 import os
 from src.sample_data import generate_sample_transactions
+from src.clean_transactions import clean_transactions
 # from src.transactions import fetch_and_save_transactions  # Commented out as a learning step
-# from src.clean_transactions import clean_transactions  # Will be used later
 # from src.budgeting import apply_50_30_20_rule  # Will be used later
 # from src.analysis import analyze_spending  # Will be used later
 # from src.advisor_old import generate_advice_and_qa  # Will be used later
@@ -18,8 +19,10 @@ def main():
     # Instead, we'll use a static sample dataset for demonstration with 500-600 transactions
     sample_transactions = generate_sample_transactions(600)  # Generate and save 600 transactions
     print(f"Generated {len(sample_transactions)} sample transactions")
-    # Further processing (cleaning, budgeting, etc.) to be added in subsequent steps
-    print("Pipeline completed (initial setup with sample data).")
+    print("Cleaning transactions...")
+    cleaned_df = clean_transactions(sample_transactions)
+    # Further processing (budgeting, analysis, etc.) to be added in subsequent steps
+    print("Pipeline completed (initial setup with sample data and cleaning).")
 
 if __name__ == "__main__":
     main()

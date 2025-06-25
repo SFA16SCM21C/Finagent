@@ -3,6 +3,7 @@ import json
 import random
 from datetime import datetime, timedelta
 import os
+from src.clean_transactions import CATEGORY_MAPPING  # Import category mapping from clean_transactions.py
 
 def generate_sample_transactions(count=600):
     """Generate 500-600 sample transactions for a Lufthansa project manager (2024-2025)."""
@@ -15,26 +16,10 @@ def generate_sample_transactions(count=600):
     income_weeks = [start_date + timedelta(days=i * 7) for i in range(total_days // 7)]
     income_amount = 4000.0 / 4.33  # Approx weekly income (€4000 / 4.33 weeks/month)
 
-    # Category mapping for transaction categorization
-    CATEGORY_MAPPING = {
-        "FOOD_AND_DRINK": "Food",
-        "AUTO_AND_TRANSPORT": "Transportation",
-        "BILLS_AND_UTILITIES": "Bills",
-        "SHOPPING": "Shopping",
-        "ENTERTAINMENT": "Entertainment",
-        "TRANSFER": "Other",
-        "PAYMENT": "Other",
-        "INCOME": "Other",
-        "TRAVEL": "Travel",
-        "GENERAL_MERCHANDISE": "Shopping",
-        "TRANSPORTATION": "Transportation",
-        "LOAN_PAYMENTS": "Other",
-    }
-
     for i in range(count):
         # Random date within the range
         date = start_date + timedelta(days=random.randint(0, total_days))
-        authorized_date = date.strftime("%Y-%m-%d")
+        authorized_date = date.strftime("%Y-%m-%d")  # Using ISO format for simplicity and compatibility
 
         # Define category probabilities based on Lufthansa project manager lifestyle
         category_weights = {
@@ -86,7 +71,7 @@ def generate_sample_transactions(count=600):
                     "phone_number": None
                 }
             ],
-            "date": date.strftime("%Y-%m-%d"),
+            "date": date.strftime("%Y-%m-%d"),  # Using ISO format for consistency
             "datetime": None,
             "iso_currency_code": "EUR",
             "location": {
