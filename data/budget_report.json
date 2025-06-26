@@ -1,24 +1,602 @@
 {
-  "month": "2025-06",
-  "income": 4000.0,
-  "income_source": "default",
-  "estimated_income": 4.22,
-  "needs": {
-    "amount": 13.565,
-    "percentage": 0.33912499999999995,
-    "target_percentage": 50.0,
-    "status": "Under"
+  "2024-02": {
+    "month": "2024-02",
+    "income": 4000.0,
+    "income_source": "default",
+    "estimated_income": 0.0,
+    "needs": {
+      "amount": 846.11,
+      "percentage": 21.15275,
+      "target_percentage": 50.0,
+      "status": "Under"
+    },
+    "wants": {
+      "amount": 1731.6599999999999,
+      "percentage": 43.29149999999999,
+      "target_percentage": 30.0,
+      "status": "Over"
+    },
+    "savings_debt": {
+      "amount": 4944.62,
+      "percentage": 123.61549999999998,
+      "target_percentage": 20.0,
+      "status": "Over",
+      "custom_goal": 800.0
+    }
   },
-  "wants": {
-    "amount": 97.565,
-    "percentage": 2.4391249999999998,
-    "target_percentage": 30.0,
-    "status": "Under"
+  "2025-10": {
+    "month": "2025-10",
+    "income": 4000.0,
+    "income_source": "default",
+    "estimated_income": 0.0,
+    "needs": {
+      "amount": 1125.89,
+      "percentage": 28.14725,
+      "target_percentage": 50.0,
+      "status": "Under"
+    },
+    "wants": {
+      "amount": 1686.86,
+      "percentage": 42.171499999999995,
+      "target_percentage": 30.0,
+      "status": "Over"
+    },
+    "savings_debt": {
+      "amount": 1736.0000000000002,
+      "percentage": 43.400000000000006,
+      "target_percentage": 20.0,
+      "status": "Over",
+      "custom_goal": 800.0
+    }
   },
-  "savings_debt": {
-    "amount": 25.0,
-    "percentage": 0.625,
-    "target_percentage": 20.0,
-    "status": "Under"
+  "2025-07": {
+    "month": "2025-07",
+    "income": 4000.0,
+    "income_source": "default",
+    "estimated_income": 0.0,
+    "needs": {
+      "amount": 972.9099999999999,
+      "percentage": 24.322749999999996,
+      "target_percentage": 50.0,
+      "status": "Under"
+    },
+    "wants": {
+      "amount": 790.08,
+      "percentage": 19.752,
+      "target_percentage": 30.0,
+      "status": "Under"
+    },
+    "savings_debt": {
+      "amount": 1543.8899999999999,
+      "percentage": 38.597249999999995,
+      "target_percentage": 20.0,
+      "status": "Over",
+      "custom_goal": 800.0
+    }
+  },
+  "2025-11": {
+    "month": "2025-11",
+    "income": 4000.0,
+    "income_source": "default",
+    "estimated_income": 0.0,
+    "needs": {
+      "amount": 413.2,
+      "percentage": 10.33,
+      "target_percentage": 50.0,
+      "status": "Under"
+    },
+    "wants": {
+      "amount": 758.0099999999999,
+      "percentage": 18.950249999999997,
+      "target_percentage": 30.0,
+      "status": "Under"
+    },
+    "savings_debt": {
+      "amount": 2125.3999999999996,
+      "percentage": 53.13499999999999,
+      "target_percentage": 20.0,
+      "status": "Over",
+      "custom_goal": 800.0
+    }
+  },
+  "2024-06": {
+    "month": "2024-06",
+    "income": 4000.0,
+    "income_source": "default",
+    "estimated_income": 0.0,
+    "needs": {
+      "amount": 494.7399999999999,
+      "percentage": 12.368499999999997,
+      "target_percentage": 50.0,
+      "status": "Under"
+    },
+    "wants": {
+      "amount": 1511.0,
+      "percentage": 37.775,
+      "target_percentage": 30.0,
+      "status": "Over"
+    },
+    "savings_debt": {
+      "amount": 3506.13,
+      "percentage": 87.65325,
+      "target_percentage": 20.0,
+      "status": "Over",
+      "custom_goal": 800.0
+    }
+  },
+  "2024-12": {
+    "month": "2024-12",
+    "income": 4000.0,
+    "income_source": "default",
+    "estimated_income": 0.0,
+    "needs": {
+      "amount": 477.48999999999995,
+      "percentage": 11.937249999999999,
+      "target_percentage": 50.0,
+      "status": "Under"
+    },
+    "wants": {
+      "amount": 1474.88,
+      "percentage": 36.87200000000001,
+      "target_percentage": 30.0,
+      "status": "Over"
+    },
+    "savings_debt": {
+      "amount": 764.64,
+      "percentage": 19.116,
+      "target_percentage": 20.0,
+      "status": "Under",
+      "custom_goal": 800.0
+    }
+  },
+  "2024-07": {
+    "month": "2024-07",
+    "income": 4000.0,
+    "income_source": "default",
+    "estimated_income": 0.0,
+    "needs": {
+      "amount": 674.6400000000001,
+      "percentage": 16.866000000000003,
+      "target_percentage": 50.0,
+      "status": "Under"
+    },
+    "wants": {
+      "amount": 1298.3400000000001,
+      "percentage": 32.4585,
+      "target_percentage": 30.0,
+      "status": "Over"
+    },
+    "savings_debt": {
+      "amount": 2269.23,
+      "percentage": 56.73074999999999,
+      "target_percentage": 20.0,
+      "status": "Over",
+      "custom_goal": 800.0
+    }
+  },
+  "2024-03": {
+    "month": "2024-03",
+    "income": 4000.0,
+    "income_source": "default",
+    "estimated_income": 0.0,
+    "needs": {
+      "amount": 1219.44,
+      "percentage": 30.486,
+      "target_percentage": 50.0,
+      "status": "Under"
+    },
+    "wants": {
+      "amount": 1914.5600000000002,
+      "percentage": 47.864000000000004,
+      "target_percentage": 30.0,
+      "status": "Over"
+    },
+    "savings_debt": {
+      "amount": 4774.8099999999995,
+      "percentage": 119.37024999999998,
+      "target_percentage": 20.0,
+      "status": "Over",
+      "custom_goal": 800.0
+    }
+  },
+  "2024-05": {
+    "month": "2024-05",
+    "income": 4000.0,
+    "income_source": "default",
+    "estimated_income": 0.0,
+    "needs": {
+      "amount": 393.47,
+      "percentage": 9.83675,
+      "target_percentage": 50.0,
+      "status": "Under"
+    },
+    "wants": {
+      "amount": 1048.5800000000002,
+      "percentage": 26.2145,
+      "target_percentage": 30.0,
+      "status": "Under"
+    },
+    "savings_debt": {
+      "amount": 5386.5,
+      "percentage": 134.6625,
+      "target_percentage": 20.0,
+      "status": "Over",
+      "custom_goal": 800.0
+    }
+  },
+  "2025-12": {
+    "month": "2025-12",
+    "income": 4000.0,
+    "income_source": "default",
+    "estimated_income": 0.0,
+    "needs": {
+      "amount": 610.5699999999999,
+      "percentage": 15.264249999999999,
+      "target_percentage": 50.0,
+      "status": "Under"
+    },
+    "wants": {
+      "amount": 342.78999999999996,
+      "percentage": 8.569749999999999,
+      "target_percentage": 30.0,
+      "status": "Under"
+    },
+    "savings_debt": {
+      "amount": 1268.5300000000002,
+      "percentage": 31.713250000000002,
+      "target_percentage": 20.0,
+      "status": "Over",
+      "custom_goal": 800.0
+    }
+  },
+  "2024-08": {
+    "month": "2024-08",
+    "income": 4000.0,
+    "income_source": "default",
+    "estimated_income": 0.0,
+    "needs": {
+      "amount": 358.41999999999996,
+      "percentage": 8.9605,
+      "target_percentage": 50.0,
+      "status": "Under"
+    },
+    "wants": {
+      "amount": 1430.19,
+      "percentage": 35.75475,
+      "target_percentage": 30.0,
+      "status": "Over"
+    },
+    "savings_debt": {
+      "amount": 1840.72,
+      "percentage": 46.018,
+      "target_percentage": 20.0,
+      "status": "Over",
+      "custom_goal": 800.0
+    }
+  },
+  "2024-09": {
+    "month": "2024-09",
+    "income": 4000.0,
+    "income_source": "default",
+    "estimated_income": 0.0,
+    "needs": {
+      "amount": 492.27,
+      "percentage": 12.30675,
+      "target_percentage": 50.0,
+      "status": "Under"
+    },
+    "wants": {
+      "amount": 1526.02,
+      "percentage": 38.1505,
+      "target_percentage": 30.0,
+      "status": "Over"
+    },
+    "savings_debt": {
+      "amount": 1167.25,
+      "percentage": 29.18125,
+      "target_percentage": 20.0,
+      "status": "Over",
+      "custom_goal": 800.0
+    }
+  },
+  "2024-01": {
+    "month": "2024-01",
+    "income": 4000.0,
+    "income_source": "default",
+    "estimated_income": 0.0,
+    "needs": {
+      "amount": 548.28,
+      "percentage": 13.706999999999999,
+      "target_percentage": 50.0,
+      "status": "Under"
+    },
+    "wants": {
+      "amount": 698.54,
+      "percentage": 17.4635,
+      "target_percentage": 30.0,
+      "status": "Under"
+    },
+    "savings_debt": {
+      "amount": 5125.66,
+      "percentage": 128.1415,
+      "target_percentage": 20.0,
+      "status": "Over",
+      "custom_goal": 800.0
+    }
+  },
+  "2024-04": {
+    "month": "2024-04",
+    "income": 4000.0,
+    "income_source": "default",
+    "estimated_income": 0.0,
+    "needs": {
+      "amount": 1177.79,
+      "percentage": 29.44475,
+      "target_percentage": 50.0,
+      "status": "Under"
+    },
+    "wants": {
+      "amount": 997.25,
+      "percentage": 24.93125,
+      "target_percentage": 30.0,
+      "status": "Under"
+    },
+    "savings_debt": {
+      "amount": 6838.119999999999,
+      "percentage": 170.95299999999997,
+      "target_percentage": 20.0,
+      "status": "Over",
+      "custom_goal": 800.0
+    }
+  },
+  "2024-11": {
+    "month": "2024-11",
+    "income": 4000.0,
+    "income_source": "default",
+    "estimated_income": 0.0,
+    "needs": {
+      "amount": 969.01,
+      "percentage": 24.225250000000003,
+      "target_percentage": 50.0,
+      "status": "Under"
+    },
+    "wants": {
+      "amount": 1034.6,
+      "percentage": 25.865,
+      "target_percentage": 30.0,
+      "status": "Under"
+    },
+    "savings_debt": {
+      "amount": 1815.22,
+      "percentage": 45.3805,
+      "target_percentage": 20.0,
+      "status": "Over",
+      "custom_goal": 800.0
+    }
+  },
+  "2025-04": {
+    "month": "2025-04",
+    "income": 4000.0,
+    "income_source": "default",
+    "estimated_income": 0.0,
+    "needs": {
+      "amount": 567.24,
+      "percentage": 14.181,
+      "target_percentage": 50.0,
+      "status": "Under"
+    },
+    "wants": {
+      "amount": 934.62,
+      "percentage": 23.3655,
+      "target_percentage": 30.0,
+      "status": "Under"
+    },
+    "savings_debt": {
+      "amount": 1333.96,
+      "percentage": 33.349000000000004,
+      "target_percentage": 20.0,
+      "status": "Over",
+      "custom_goal": 800.0
+    }
+  },
+  "2025-08": {
+    "month": "2025-08",
+    "income": 4000.0,
+    "income_source": "default",
+    "estimated_income": 0.0,
+    "needs": {
+      "amount": 818.3600000000001,
+      "percentage": 20.459000000000003,
+      "target_percentage": 50.0,
+      "status": "Under"
+    },
+    "wants": {
+      "amount": 1121.9,
+      "percentage": 28.047500000000003,
+      "target_percentage": 30.0,
+      "status": "Under"
+    },
+    "savings_debt": {
+      "amount": 1951.12,
+      "percentage": 48.778,
+      "target_percentage": 20.0,
+      "status": "Over",
+      "custom_goal": 800.0
+    }
+  },
+  "2025-03": {
+    "month": "2025-03",
+    "income": 4000.0,
+    "income_source": "default",
+    "estimated_income": 0.0,
+    "needs": {
+      "amount": 721.6800000000001,
+      "percentage": 18.042,
+      "target_percentage": 50.0,
+      "status": "Under"
+    },
+    "wants": {
+      "amount": 410.35,
+      "percentage": 10.258750000000001,
+      "target_percentage": 30.0,
+      "status": "Under"
+    },
+    "savings_debt": {
+      "amount": 1765.58,
+      "percentage": 44.1395,
+      "target_percentage": 20.0,
+      "status": "Over",
+      "custom_goal": 800.0
+    }
+  },
+  "2024-10": {
+    "month": "2024-10",
+    "income": 4000.0,
+    "income_source": "default",
+    "estimated_income": 0.0,
+    "needs": {
+      "amount": 544.02,
+      "percentage": 13.600499999999998,
+      "target_percentage": 50.0,
+      "status": "Under"
+    },
+    "wants": {
+      "amount": 1484.7299999999998,
+      "percentage": 37.118249999999996,
+      "target_percentage": 30.0,
+      "status": "Over"
+    },
+    "savings_debt": {
+      "amount": 2108.66,
+      "percentage": 52.716499999999996,
+      "target_percentage": 20.0,
+      "status": "Over",
+      "custom_goal": 800.0
+    }
+  },
+  "2025-01": {
+    "month": "2025-01",
+    "income": 4000.0,
+    "income_source": "default",
+    "estimated_income": 0.0,
+    "needs": {
+      "amount": 662.4200000000001,
+      "percentage": 16.560500000000005,
+      "target_percentage": 50.0,
+      "status": "Under"
+    },
+    "wants": {
+      "amount": 1134.3899999999999,
+      "percentage": 28.359749999999995,
+      "target_percentage": 30.0,
+      "status": "Under"
+    },
+    "savings_debt": {
+      "amount": 2052.0299999999997,
+      "percentage": 51.300749999999994,
+      "target_percentage": 20.0,
+      "status": "Over",
+      "custom_goal": 800.0
+    }
+  },
+  "2025-09": {
+    "month": "2025-09",
+    "income": 4000.0,
+    "income_source": "default",
+    "estimated_income": 0.0,
+    "needs": {
+      "amount": 1206.25,
+      "percentage": 30.15625,
+      "target_percentage": 50.0,
+      "status": "Under"
+    },
+    "wants": {
+      "amount": 1317.69,
+      "percentage": 32.94225,
+      "target_percentage": 30.0,
+      "status": "Over"
+    },
+    "savings_debt": {
+      "amount": 2312.9999999999995,
+      "percentage": 57.824999999999996,
+      "target_percentage": 20.0,
+      "status": "Over",
+      "custom_goal": 800.0
+    }
+  },
+  "2025-06": {
+    "month": "2025-06",
+    "income": 4000.0,
+    "income_source": "default",
+    "estimated_income": 0.0,
+    "needs": {
+      "amount": 1095.5,
+      "percentage": 27.3875,
+      "target_percentage": 50.0,
+      "status": "Under"
+    },
+    "wants": {
+      "amount": 1164.25,
+      "percentage": 29.10625,
+      "target_percentage": 30.0,
+      "status": "Under"
+    },
+    "savings_debt": {
+      "amount": 1265.65,
+      "percentage": 31.641250000000003,
+      "target_percentage": 20.0,
+      "status": "Over",
+      "custom_goal": 800.0
+    }
+  },
+  "2025-02": {
+    "month": "2025-02",
+    "income": 4000.0,
+    "income_source": "default",
+    "estimated_income": 0.0,
+    "needs": {
+      "amount": 718.52,
+      "percentage": 17.962999999999997,
+      "target_percentage": 50.0,
+      "status": "Under"
+    },
+    "wants": {
+      "amount": 1195.35,
+      "percentage": 29.88375,
+      "target_percentage": 30.0,
+      "status": "Under"
+    },
+    "savings_debt": {
+      "amount": 616.88,
+      "percentage": 15.421999999999999,
+      "target_percentage": 20.0,
+      "status": "Under",
+      "custom_goal": 800.0
+    }
+  },
+  "2025-05": {
+    "month": "2025-05",
+    "income": 4000.0,
+    "income_source": "default",
+    "estimated_income": 0.0,
+    "needs": {
+      "amount": 657.5300000000001,
+      "percentage": 16.43825,
+      "target_percentage": 50.0,
+      "status": "Under"
+    },
+    "wants": {
+      "amount": 721.3,
+      "percentage": 18.0325,
+      "target_percentage": 30.0,
+      "status": "Under"
+    },
+    "savings_debt": {
+      "amount": 1447.13,
+      "percentage": 36.17825,
+      "target_percentage": 20.0,
+      "status": "Over",
+      "custom_goal": 800.0
+    }
   }
 }
