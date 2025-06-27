@@ -3,7 +3,6 @@ import pandas as pd
 import json
 import os
 from datetime import datetime
-from src.clean_transactions import CATEGORY_MAPPING  # Import for category consistency
 
 def estimate_income(raw_input_path="data/transactions.json", month=None):
     """Estimate monthly income from raw transaction data."""

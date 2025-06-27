@@ -1,7 +1,6 @@
 # src/analysis.py
 import pandas as pd
 import sqlite3
-import os
 from datetime import datetime
 
 def analyze_spending(income, clean_input_path="data/transactions_cleaned.json"):
