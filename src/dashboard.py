@@ -3,7 +3,7 @@ import streamlit as st
 import base64
 import os
 
-# Custom CSS for layout with blue theme, 80rem max width
+# Custom CSS for layout with green theme, 80rem max width
 st.markdown(
     """
     <style>
@@ -15,8 +15,8 @@ st.markdown(
     .dashboard-row {
         display: flex;
         align-items: center;
-        max-height: 60px; /* Fixed height for the row */
-        overflow: hidden; /* Prevent overflow beyond 60px */
+        max-height: 80px; /* Match logo height */
+        overflow: hidden; /* Prevent overflow beyond 80px */
     }
     .logo-area {
         width: 20rem; /* 320px at 16px base font size */
@@ -26,11 +26,11 @@ st.markdown(
     .header-area {
         flex-grow: 1;
         padding: 10px;
-        background-color: #1976D2; /* Blue main color */
-        border-radius: 8px; /* Rounded corners on right side */
+        background-color: #00695C; /* Green main color */
+        border-radius: 8px; /* Rounded corners on all sides */
         box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Subtle shadow for depth */
-        max-height: 100px; /* Match row height */
-        line-height: 40px; /* Center text vertically */
+        max-height: 80px; /* Match row and logo height */
+        line-height: 60px; /* Center text vertically within 80px */
         text-align: center;
         color: white; /* White text for contrast */
         font-family: 'Roboto', sans-serif; /* Professional font */
@@ -56,12 +56,12 @@ with col1:
         )
     else:
         st.markdown(
-            "<span style='font-size: 40px; color: #1976D2;'>📈</span>",
+            "<span style='font-size: 40px; color: #4CAF50;'>📈</span>",
             unsafe_allow_html=True,
         )
     st.markdown('</div>', unsafe_allow_html=True)
 with col2:
-    st.markdown('<div style="max-height: 100px;>', unsafe_allow_html=True)
+    st.markdown('<div>', unsafe_allow_html=True)
     st.markdown('<h1 class="header-area">FinAgent Dashboard</h1>', unsafe_allow_html=True)
     st.markdown('</div>', unsafe_allow_html=True)
 st.markdown('</div>', unsafe_allow_html=True)
