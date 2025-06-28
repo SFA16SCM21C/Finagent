@@ -2,6 +2,9 @@
 import streamlit as st
 import base64
 import os
+import json
+import pandas as pd
+import plotly.express as px
 
 # Custom CSS for layout with green theme, 80rem max width
 st.markdown(
@@ -66,5 +69,31 @@ with col2:
     st.markdown('</div>', unsafe_allow_html=True)
 st.markdown('</div>', unsafe_allow_html=True)
 
+# Second Row: Budget Distribution and Spending Analysis
+st.markdown('<div class="dashboard-row">', unsafe_allow_html=True)  # New row for columns
+col1, col2 = st.columns(2)  # Two equal-width columns
+with col1:
+    # Budget Distribution (Pie Chart with Dropdown)
+    budget_path = "data/budget_report.json"
+    if os.path.exists(budget_path):
+        with open(budget_path, "r") as f:
+            budget_data = json.load(f)
+        months = list(budget_data.keys())
+        selected_month = st.selectbox("Select Month", months, index=months.index("2025-06") if "2025-06" in months else 0)
+        budget = budget_data[selected_month]
+        fig = px.pie(
+            values=[budget["needs"]["amount"], budget["wants"]["amount"], budget["savings_debt"]["amount"]],
+            names=["Needs", "Wants", "Savings/Debt"],
+            color_discrete_sequence=["#00695C", "#4CAF50", "#A5D6A7"],  # Green shades
+            title=f"Budget Distribution for {selected_month}"
+        )
+        st.plotly_chart(fig, use_container_width=True)
+    else:
+        st.error("Budget report not found at data/budget_report.json")
+# Placeholder for second column
+with col2:
+    st.write("Spending Analysis will be implemented in the next subtask.")
+st.markdown('</div>', unsafe_allow_html=True)
+
 # Placeholder for future rows
-st.write("Second and third rows will be implemented in subsequent subtasks.")
+st.write("Third row will be implemented in subsequent subtasks.")
