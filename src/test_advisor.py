@@ -1,4 +1,4 @@
-from src.advisor import get_advice
+from src_old.advisor import get_advice
 
 
 def test_advice_import():
