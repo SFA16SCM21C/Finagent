@@ -45,7 +45,7 @@ st.markdown(
         margin-bottom: 10px;
     }
     .green-button {
-        background-color: #4CAF50; /* Green accent color */
+        background-color: #00695C; /* Green/teal accent color matching header */
         color: white;
         padding: 5px 15px;
         border-radius: 5px;
@@ -54,7 +54,13 @@ st.markdown(
         font-family: 'Roboto', sans-serif;
     }
     .green-button:hover {
-        background-color: #45a049; /* Darker green on hover */
+        background-color: #004D40; /* Darker green/teal on hover */
+    }
+    .instruction-text {
+        font-size: 0.9rem; /* 1rem less than default */
+        font-style: italic;
+        color: #666; /* Subtle gray for contrast */
+        margin-top: 5px;
     }
     </style>
     """,
@@ -155,16 +161,20 @@ with col1:
     # Savings Plan Section
     st.markdown("### Savings Plan")
     saving_path = "data/saving.json"
-    if not os.path.exists(saving_path) or not st.session_state.savings_plans:
-        st.write("No saving plan to show (You can create 3 plans maximum)")
-        if st.button("Create Plan", key="create_plan_initial", help="Create a new savings plan"):
+    if not os.path.exists(saving_path) or not any(plan['name'] for plan in st.session_state.savings_plans):
+        st.write("No saving plan to show")
+        st.markdown('<p class="instruction-text">(You can create 3 plans maximum)</p>', unsafe_allow_html=True)
+        button_html = f'<button class="green-button" onclick="window.Streamlit.setComponentValue({{action: \'create_plan\'}})">Create Plan</button>'
+        st.markdown(button_html, unsafe_allow_html=True)
+        if 'create_plan_trigger' in st.session_state and st.session_state.create_plan_trigger:
             for i in range(3):
                 if st.session_state.savings_plans[i]['name'] == '':
                     st.session_state.savings_plans[i]['name'] = st.text_input("Plan Name", key=f"plan_name_{i}", value=f"Plan {i+1}")
                     st.session_state.savings_plans[i]['goal'] = st.number_input("Goal Amount (€)", key=f"plan_goal_{i}", value=0.0)
+                    with open(saving_path, "w") as f:
+                        json.dump(st.session_state.savings_plans, f)
+                    st.session_state.create_plan_trigger = False
                     break
-            with open(saving_path, "w") as f:
-                json.dump(st.session_state.savings_plans, f)
     else:
         for i, plan in enumerate(st.session_state.savings_plans):
             if plan['name']:
@@ -176,7 +186,9 @@ with col1:
                     st.progress(progress, text=f"{int(progress * 100)}%")
                     st.write(f"Goal: €{plan['goal']:.2f}, Saved: €{plan['saved']:.2f}")
                 with col2:
-                    if st.button("Add to Plan", key=f"add_to_plan_{i}", help=f"Add to {plan['name']}", css_class="green-button"):
+                    button_html = f'<button class="green-button" onclick="window.Streamlit.setComponentValue({{action: \'add_to_plan_{i}\'}})">Add to Plan</button>'
+                    st.markdown(button_html, unsafe_allow_html=True)
+                    if f'add_to_plan_{i}_trigger' in st.session_state and st.session_state[f'add_to_plan_{i}_trigger']:
                         amount = st.number_input("Add Amount (€)", key=f"add_amount_{i}", value=0.0)
                         if amount <= st.session_state.balance and amount > 0:
                             plan['saved'] += amount
@@ -186,11 +198,27 @@ with col1:
                             st.success(f"Added €{amount:.2f} to {plan['name']}. New balance: €{st.session_state.balance:.2f}")
                         else:
                             st.error("Insufficient balance or invalid amount.")
+                        st.session_state[f'add_to_plan_{i}_trigger'] = False
                 st.markdown('</div>', unsafe_allow_html=True)
 # Placeholder for second column
 with col2:
     st.write("LLM Query section will be implemented in the next subtask.")
 st.markdown('</div>', unsafe_allow_html=True)
+
+# Handle button events
+if 'create_plan_trigger' not in st.session_state:
+    st.session_state.create_plan_trigger = False
+for i in range(3):
+    if f'add_to_plan_{i}_trigger' not in st.session_state:
+        st.session_state[f'add_to_plan_{i}_trigger'] = False
+if st.session_state.get('component_value'):
+    action = st.session_state.component_value.get('action')
+    if action == 'create_plan':
+        st.session_state.create_plan_trigger = True
+    elif action and action.startswith('add_to_plan_'):
+        i = int(action.split('_')[-1])
+        st.session_state[f'add_to_plan_{i}_trigger'] = True
+    st.session_state.component_value = None
 
 # Placeholder for future rows
 st.write("Additional rows will be implemented as needed.")
