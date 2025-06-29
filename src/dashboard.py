@@ -13,7 +13,7 @@ st.markdown(
     /* Target Streamlit's main content container */
     .block-container {
         max-width: 80rem !important;
-        margin: -2rem auto !important; /* 2rem top margin, auto left/right for centering */
+        margin: -5rem auto !important; /* 2rem top margin, auto left/right for centering */
         background-color: transparent !important;
     }
     .dashboard-row {
@@ -38,6 +38,12 @@ st.markdown(
         text-align: center;
         color: white; /* White text for contrast */
         font-family: 'Roboto', sans-serif; /* Professional font */
+        font-size: 24px; /* Base size for header */
+    }
+    .section-header {
+        font-size: 20px; /* One size bigger than header (24px + 4px) */
+        color: #00695C; /* Green for section headers */
+        font-family: 'Roboto', sans-serif; /* Consistent font */
     }
     .savings-plan {
         padding: 10px;
@@ -80,8 +86,8 @@ if os.path.exists(saving_path):
 else:
     st.session_state.savings_plans = [{'name': '', 'goal': 0.0, 'saved': 0.0} for _ in range(3)]  # Max 3 plans
 
-# Wrap entire dashboard content in <div class="main"> (though using .block-container in CSS)
-# Note: No explicit <div> needed since .block-container is targeted directly
+# Wrap entire dashboard content in <div class="dashboard-container">
+# Note: Using .block-container in CSS, no explicit <div> needed
 
 # First Row: Logo and Header
 st.markdown('<div class="dashboard-row">', unsafe_allow_html=True)
@@ -121,11 +127,11 @@ with col1:
         months = list(budget_data.keys())
         selected_month = st.selectbox("Select Month", months, index=months.index("2025-06") if "2025-06" in months else 0, key="budget_month_select")
         budget = budget_data[selected_month]
+        st.markdown('<h3 class="section-header">Budget Distribution</h3>', unsafe_allow_html=True)
         fig = px.pie(
             values=[budget["needs"]["amount"], budget["wants"]["amount"], budget["savings_debt"]["amount"]],
             names=["Needs", "Wants", "Savings/Debt"],
-            color_discrete_sequence=["#00695C", "#4CAF50", "#A5D6A7"],  # Green shades
-            title=f"Budget Distribution for {selected_month}"
+            color_discrete_sequence=["#00695C", "#4CAF50", "#A5D6A7"]
         )
         st.plotly_chart(fig, use_container_width=True)
     else:
@@ -140,7 +146,7 @@ with col2:
         months = list(budget_data.keys())
         selected_month = st.selectbox("Select Month", months, index=months.index("2025-06") if "2025-06" in months else 0, key="spending_month_select")
         budget = budget_data[selected_month]
-        st.markdown("### Spending Analysis")
+        st.markdown('<h3 class="section-header">Spending Analysis</h3>', unsafe_allow_html=True)
         df = pd.read_json(transactions_path)
         df["date"] = pd.to_datetime(df["date"])
         df_month = df[(df["date"].dt.to_period("M") == pd.to_datetime(selected_month).to_period("M")) & (df["amount"] > 0)]
@@ -163,7 +169,7 @@ st.markdown('<div class="dashboard-row">', unsafe_allow_html=True)  # New row fo
 col1, col2 = st.columns(2)  # Two equal-width columns
 with col1:
     # Savings Plan Section
-    st.markdown("### Savings Plan")
+    st.markdown('<h3 class="section-header">Savings Plan</h3>', unsafe_allow_html=True)
     saving_path = "data/saving.json"
     if not os.path.exists(saving_path) or not any(plan['name'] for plan in st.session_state.savings_plans):
         st.write("No saving plan to show")
