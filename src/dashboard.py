@@ -5,7 +5,6 @@ import os
 import json
 import pandas as pd
 import plotly.express as px
-import sqlite3
 
 # Custom CSS for layout with green theme, 80rem max width
 st.markdown(
@@ -45,10 +44,34 @@ st.markdown(
         border-radius: 8px;
         margin-bottom: 10px;
     }
+    .green-button {
+        background-color: #4CAF50; /* Green accent color */
+        color: white;
+        padding: 5px 15px;
+        border-radius: 5px;
+        border: none;
+        cursor: pointer;
+        font-family: 'Roboto', sans-serif;
+    }
+    .green-button:hover {
+        background-color: #45a049; /* Darker green on hover */
+    }
     </style>
     """,
     unsafe_allow_html=True
 )
+
+# Initialize or load balance (simulated bank balance)
+if 'balance' not in st.session_state:
+    st.session_state.balance = 10000.0  # Initial balance
+
+# Load or initialize saving plans from JSON
+saving_path = "data/saving.json"
+if os.path.exists(saving_path):
+    with open(saving_path, "r") as f:
+        st.session_state.savings_plans = json.load(f)
+else:
+    st.session_state.savings_plans = [{'name': '', 'goal': 0.0, 'saved': 0.0} for _ in range(3)]  # Max 3 plans
 
 # First Row: Logo and Header
 st.markdown('<div class="dashboard-row">', unsafe_allow_html=True)
@@ -131,32 +154,39 @@ col1, col2 = st.columns(2)  # Two equal-width columns
 with col1:
     # Savings Plan Section
     st.markdown("### Savings Plan")
-    if 'savings_plans' not in st.session_state:
-        st.session_state.savings_plans = [{'goal': 0.0, 'saved': 0.0} for _ in range(4)]
-    for i, plan in enumerate(st.session_state.savings_plans):
-        with st.expander(f"Plan {i+1}"):
-            st.markdown(f'<div class="savings-plan">', unsafe_allow_html=True)
-            col1, col2 = st.columns([1, 1])
-            with col1:
-                if st.button("Create Plan", key=f"create_plan_{i}"):
-                    goal = st.number_input("Set Goal (€)", key=f"goal_input_{i}", value=0.0)
-                    plan['goal'] = goal
-                if st.button("Add Saving", key=f"add_plan_{i}"):
-                    amount = st.number_input("Add Amount (€)", key=f"add_input_{i}", value=0.0)
-                    plan['saved'] += amount
-            with col2:
-                progress = plan['saved'] / max(plan['goal'], 1) if plan['goal'] > 0 else 0
-                st.progress(progress)
-                st.write(f"Goal: €{plan['goal']:.2f}, Saved: €{plan['saved']:.2f}")
-            st.markdown('</div>', unsafe_allow_html=True)
-    # Save to database (placeholder for now, to be implemented)
-    # conn = sqlite3.connect("data/finagent.db")
-    # cursor = conn.cursor()
-    # cursor.execute("CREATE TABLE IF NOT EXISTS savings_plans (plan_id INTEGER, goal REAL, saved REAL)")
-    # for i, plan in enumerate(st.session_state.savings_plans):
-    #     cursor.execute("INSERT OR REPLACE INTO savings_plans (plan_id, goal, saved) VALUES (?, ?, ?)", (i, plan['goal'], plan['saved']))
-    # conn.commit()
-    # conn.close()
+    saving_path = "data/saving.json"
+    if not os.path.exists(saving_path) or not st.session_state.savings_plans:
+        st.write("No saving plan to show (You can create 3 plans maximum)")
+        if st.button("Create Plan", key="create_plan_initial", help="Create a new savings plan"):
+            for i in range(3):
+                if st.session_state.savings_plans[i]['name'] == '':
+                    st.session_state.savings_plans[i]['name'] = st.text_input("Plan Name", key=f"plan_name_{i}", value=f"Plan {i+1}")
+                    st.session_state.savings_plans[i]['goal'] = st.number_input("Goal Amount (€)", key=f"plan_goal_{i}", value=0.0)
+                    break
+            with open(saving_path, "w") as f:
+                json.dump(st.session_state.savings_plans, f)
+    else:
+        for i, plan in enumerate(st.session_state.savings_plans):
+            if plan['name']:
+                st.markdown(f'<div class="savings-plan">', unsafe_allow_html=True)
+                st.write(f"**{plan['name']}**")
+                col1, col2 = st.columns([4, 1])  # 80% width for progress, 20% for button
+                with col1:
+                    progress = plan['saved'] / max(plan['goal'], 1) if plan['goal'] > 0 else 0
+                    st.progress(progress, text=f"{int(progress * 100)}%")
+                    st.write(f"Goal: €{plan['goal']:.2f}, Saved: €{plan['saved']:.2f}")
+                with col2:
+                    if st.button("Add to Plan", key=f"add_to_plan_{i}", help=f"Add to {plan['name']}", css_class="green-button"):
+                        amount = st.number_input("Add Amount (€)", key=f"add_amount_{i}", value=0.0)
+                        if amount <= st.session_state.balance and amount > 0:
+                            plan['saved'] += amount
+                            st.session_state.balance -= amount
+                            with open(saving_path, "w") as f:
+                                json.dump(st.session_state.savings_plans, f)
+                            st.success(f"Added €{amount:.2f} to {plan['name']}. New balance: €{st.session_state.balance:.2f}")
+                        else:
+                            st.error("Insufficient balance or invalid amount.")
+                st.markdown('</div>', unsafe_allow_html=True)
 # Placeholder for second column
 with col2:
     st.write("LLM Query section will be implemented in the next subtask.")
