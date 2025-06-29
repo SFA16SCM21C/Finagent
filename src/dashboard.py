@@ -13,7 +13,7 @@ st.markdown(
     /* Target Streamlit's main content container */
     .block-container {
         max-width: 80rem !important;
-        margin: -5rem auto !important; /* 2rem top margin, auto left/right for centering */
+        margin: 2rem auto !important; /* 2rem top margin, auto left/right for centering */
         background-color: transparent !important;
     }
     .dashboard-row {
@@ -176,32 +176,38 @@ with col1:
     st.markdown('<h3 class="section-header">Savings Plan</h3>', unsafe_allow_html=True)
     saving_path = "data/saving.json"
     if not os.path.exists(saving_path) or not any(plan['name'] for plan in st.session_state.savings_plans):
-        st.write("No saving plan to show")
-        st.write("(You can create 3 plans maximum)")
-        if st.button("Create Plan", key="create_plan_button"):
-            st.session_state.creating_plan = True
-    if st.session_state.creating_plan:
-        col1, col2 = st.columns([3, 1])
-        with col1:
-            st.session_state.new_plan_name = st.text_input("Plan Name", key="new_plan_name_input", value="")
-        with col2:
-            st.session_state.new_plan_goal = st.number_input("Amount of Plan (€)", key="new_plan_goal_input", value=0.0, step=1.0, format="%.0f")
-            if st.button("Save Plan", key="save_plan_button"):
-                if not st.session_state.new_plan_name or st.session_state.new_plan_goal <= 0 or st.session_state.new_plan_goal > 5000:
-                    st.error("Plan name cannot be empty, amount must be between 1 and 5000 euros.")
-                else:
-                    for i in range(3):
-                        if st.session_state.savings_plans[i]['name'] == '':
-                            st.session_state.savings_plans[i]['name'] = st.session_state.new_plan_name
-                            st.session_state.savings_plans[i]['goal'] = st.session_state.new_plan_goal
-                            with open(saving_path, "w") as f:
-                                json.dump(st.session_state.savings_plans, f)
-                            st.session_state.creating_plan = False
-                            st.session_state.new_plan_name = ""
-                            st.session_state.new_plan_goal = 0.0
-                            break
+        if not st.session_state.creating_plan:
+            st.write("No saving plan to show")
+            st.write("(You can create 3 plans maximum)")
+            if st.button("Create Plan", key="create_plan_button"):
+                st.session_state.creating_plan = True
+        if st.session_state.creating_plan:
+            col1, col2, col3 = st.columns([3, 1, 1])  # Adjust for name, amount, and buttons
+            with col1:
+                st.session_state.new_plan_name = st.text_input("Plan Name", key="new_plan_name_input", value="")
+            with col2:
+                st.session_state.new_plan_goal = st.number_input("Amount of Plan (€)", key="new_plan_goal_input", value=0.0, step=1.0, format="%.0f")
+            with col3:
+                if st.button("Save Plan", key="save_plan_button"):
+                    if not st.session_state.new_plan_name.strip() or st.session_state.new_plan_goal <= 0 or st.session_state.new_plan_goal > 5000:
+                        st.error("Plan name cannot be empty, and amount must be between 1 and 5000 euros.")
                     else:
-                        st.error("Maximum 3 plans reached.")
+                        for i in range(3):
+                            if st.session_state.savings_plans[i]['name'] == '':
+                                st.session_state.savings_plans[i]['name'] = st.session_state.new_plan_name.strip()
+                                st.session_state.savings_plans[i]['goal'] = st.session_state.new_plan_goal
+                                with open(saving_path, "w") as f:
+                                    json.dump(st.session_state.savings_plans, f)
+                                st.session_state.creating_plan = False
+                                st.session_state.new_plan_name = ""
+                                st.session_state.new_plan_goal = 0.0
+                                break
+                        else:
+                            st.error("Maximum 3 plans reached.")
+                if st.button("Cancel", key="cancel_plan_button"):
+                    st.session_state.creating_plan = False
+                    st.session_state.new_plan_name = ""
+                    st.session_state.new_plan_goal = 0.0
     else:
         for i, plan in enumerate(st.session_state.savings_plans):
             if plan['name']:
