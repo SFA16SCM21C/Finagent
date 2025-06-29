@@ -182,38 +182,38 @@ with col1:
             if st.button("Create Plan", key="create_plan_button"):
                 st.session_state.creating_plan = True
         if st.session_state.creating_plan:
-            with st.container():
+            with st.form(key="save_plan_form"):
                 st.write("Create a New Savings Plan")
-                col1, col2, col3 = st.columns([3, 1, 1])
+                col1, col2, col3 = st.columns([3, 1, 2])
                 with col1:
                     st.session_state.new_plan_name = st.text_input("Plan Name", key="new_plan_name_input", value=st.session_state.new_plan_name)
                 with col2:
                     st.session_state.new_plan_goal = st.number_input("Amount of Plan (€)", key="new_plan_goal_input", value=st.session_state.new_plan_goal, step=1.0, format="%.0f")
                 with col3:
-                    if st.button("Save Plan", key="save_plan_button"):
-                        if not st.session_state.new_plan_name.strip() or st.session_state.new_plan_goal < 0:
-                            st.error("Plan name cannot be empty, and amount must be non-negative.")
+                    save_plan = st.form_submit_button("Save Plan")
+                    cancel_plan = st.form_submit_button("Cancel")
+                if save_plan:
+                    if not st.session_state.new_plan_name.strip() or st.session_state.new_plan_goal < 0:
+                        st.error("Plan name cannot be empty, and amount must be non-negative.")
+                    else:
+                        for i in range(3):
+                            if st.session_state.savings_plans[i]['name'] == '':
+                                st.session_state.savings_plans[i]['name'] = st.session_state.new_plan_name.strip()
+                                st.session_state.savings_plans[i]['goal'] = st.session_state.new_plan_goal
+                                try:
+                                    with open(saving_path, "w") as f:
+                                        json.dump(st.session_state.savings_plans, f)
+                                except Exception as e:
+                                    st.error(f"Failed to save plan: {e}")
+                                else:
+                                    st.experimental_rerun()  # Refresh the page after saving
+                                break
                         else:
-                            for i in range(3):
-                                if st.session_state.savings_plans[i]['name'] == '':
-                                    st.session_state.savings_plans[i]['name'] = st.session_state.new_plan_name.strip()
-                                    st.session_state.savings_plans[i]['goal'] = st.session_state.new_plan_goal
-                                    try:
-                                        with open(saving_path, "w") as f:
-                                            json.dump(st.session_state.savings_plans, f)
-                                    except Exception as e:
-                                        st.error(f"Failed to save plan: {e}")
-                                    else:
-                                        st.session_state.creating_plan = False
-                                        st.session_state.new_plan_name = ""
-                                        st.session_state.new_plan_goal = 0.0
-                                    break
-                            else:
-                                st.error("Maximum 3 plans reached.")
-                    if st.button("Cancel", key="cancel_plan_button"):
-                        st.session_state.creating_plan = False
-                        st.session_state.new_plan_name = ""
-                        st.session_state.new_plan_goal = 0.0
+                            st.error("Maximum 3 plans reached.")
+                if cancel_plan:
+                    st.session_state.creating_plan = False
+                    st.session_state.new_plan_name = ""
+                    st.session_state.new_plan_goal = 0.0
     else:
         for i, plan in enumerate(st.session_state.savings_plans):
             if plan['name']:
