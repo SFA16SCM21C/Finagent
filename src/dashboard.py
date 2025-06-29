@@ -79,6 +79,9 @@ if os.path.exists(saving_path):
 else:
     st.session_state.savings_plans = [{'name': '', 'goal': 0.0, 'saved': 0.0} for _ in range(3)]  # Max 3 plans
 
+# Wrap entire dashboard content in <div class="main">
+st.markdown('<div class="main">', unsafe_allow_html=True)
+
 # First Row: Logo and Header
 st.markdown('<div class="dashboard-row">', unsafe_allow_html=True)
 col1, col2 = st.columns([20, 60])  # 20rem logo, remaining space for header (proportional to 80rem)
@@ -219,6 +222,9 @@ if st.session_state.get('component_value'):
         i = int(action.split('_')[-1])
         st.session_state[f'add_to_plan_{i}_trigger'] = True
     st.session_state.component_value = None
+
+# Wrap entire dashboard content in <div class="main">
+st.markdown('</div>', unsafe_allow_html=True)
 
 # Placeholder for future rows
 st.write("Additional rows will be implemented as needed.")
