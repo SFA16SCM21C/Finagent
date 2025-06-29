@@ -10,10 +10,11 @@ import plotly.express as px
 st.markdown(
     """
     <style>
-    .main {
-        max-width: 80rem; /* 1280px at 16px base font size */
-        margin: 0 auto; /* Center the container */
-        background-color: transparent; /* No coloring */
+    /* Target Streamlit's main content container */
+    .block-container {
+        max-width: 80rem !important;
+        margin: 0 auto !important;
+        background-color: transparent !important;
     }
     .dashboard-row {
         display: flex;
@@ -79,8 +80,8 @@ if os.path.exists(saving_path):
 else:
     st.session_state.savings_plans = [{'name': '', 'goal': 0.0, 'saved': 0.0} for _ in range(3)]  # Max 3 plans
 
-# Wrap entire dashboard content in <div class="main">
-st.markdown('<div class="main">', unsafe_allow_html=True)
+# Wrap entire dashboard content in <div class="dashboard-container">
+st.markdown('<div class="dashboard-container">', unsafe_allow_html=True)
 
 # First Row: Logo and Header
 st.markdown('<div class="dashboard-row">', unsafe_allow_html=True)
@@ -223,7 +224,7 @@ if st.session_state.get('component_value'):
         st.session_state[f'add_to_plan_{i}_trigger'] = True
     st.session_state.component_value = None
 
-# Wrap entire dashboard content in <div class="main">
+# Wrap entire dashboard content in <div class="dashboard-container">
 st.markdown('</div>', unsafe_allow_html=True)
 
 # Placeholder for future rows
