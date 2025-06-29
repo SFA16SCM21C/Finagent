@@ -13,7 +13,7 @@ st.markdown(
     /* Target Streamlit's main content container */
     .block-container {
         max-width: 80rem !important;
-        margin: 2rem auto !important; /* 2rem top margin, auto left/right for centering */
+        margin: -5rem auto !important; /* 2rem top margin, auto left/right for centering */
         background-color: transparent !important;
     }
     .dashboard-row {
@@ -81,11 +81,13 @@ if os.path.exists(saving_path):
 else:
     st.session_state.savings_plans = [{'name': '', 'goal': 0.0, 'saved': 0.0} for _ in range(3)]  # Max 3 plans
 
-# State to track creation mode and selected plan index
+# State to track creation mode and new plan details
 if 'creating_plan' not in st.session_state:
     st.session_state.creating_plan = False
-if 'selected_plan_index' not in st.session_state:
-    st.session_state.selected_plan_index = None
+if 'new_plan_name' not in st.session_state:
+    st.session_state.new_plan_name = ""
+if 'new_plan_goal' not in st.session_state:
+    st.session_state.new_plan_goal = 0.0
 
 # Wrap entire dashboard content in <div class="dashboard-container">
 # Note: Using .block-container in CSS, no explicit <div> needed
@@ -174,21 +176,32 @@ with col1:
     st.markdown('<h3 class="section-header">Savings Plan</h3>', unsafe_allow_html=True)
     saving_path = "data/saving.json"
     if not os.path.exists(saving_path) or not any(plan['name'] for plan in st.session_state.savings_plans):
-        col1, col2 = st.columns([3, 1])  # Adjust column ratio for layout
+        st.write("No saving plan to show")
+        st.write("(You can create 3 plans maximum)")
+        if st.button("Create Plan", key="create_plan_button"):
+            st.session_state.creating_plan = True
+    if st.session_state.creating_plan:
+        col1, col2 = st.columns([3, 1])
         with col1:
-            plan_name = st.text_input("Plan Name", key="new_plan_name", value="")
+            st.session_state.new_plan_name = st.text_input("Plan Name", key="new_plan_name_input", value="")
         with col2:
-            button_html = f'<button class="green-button" onclick="window.Streamlit.setComponentValue({{action: \'save_plan\'}})">Save Plan</button>'
-            st.markdown(button_html, unsafe_allow_html=True)
-            if 'save_plan_trigger' in st.session_state and st.session_state.save_plan_trigger:
-                for i in range(3):
-                    if st.session_state.savings_plans[i]['name'] == '':
-                        st.session_state.savings_plans[i]['name'] = plan_name
-                        st.session_state.savings_plans[i]['goal'] = st.number_input("Goal Amount (€)", key=f"plan_goal_{i}", value=0.0)
-                        with open(saving_path, "w") as f:
-                            json.dump(st.session_state.savings_plans, f)
-                        st.session_state.save_plan_trigger = False
-                        break
+            st.session_state.new_plan_goal = st.number_input("Amount of Plan (€)", key="new_plan_goal_input", value=0.0, step=1.0, format="%.0f")
+            if st.button("Save Plan", key="save_plan_button"):
+                if not st.session_state.new_plan_name or st.session_state.new_plan_goal <= 0 or st.session_state.new_plan_goal > 5000:
+                    st.error("Plan name cannot be empty, amount must be between 1 and 5000 euros.")
+                else:
+                    for i in range(3):
+                        if st.session_state.savings_plans[i]['name'] == '':
+                            st.session_state.savings_plans[i]['name'] = st.session_state.new_plan_name
+                            st.session_state.savings_plans[i]['goal'] = st.session_state.new_plan_goal
+                            with open(saving_path, "w") as f:
+                                json.dump(st.session_state.savings_plans, f)
+                            st.session_state.creating_plan = False
+                            st.session_state.new_plan_name = ""
+                            st.session_state.new_plan_goal = 0.0
+                            break
+                    else:
+                        st.error("Maximum 3 plans reached.")
     else:
         for i, plan in enumerate(st.session_state.savings_plans):
             if plan['name']:
@@ -200,10 +213,8 @@ with col1:
                     st.progress(progress, text=f"{int(progress * 100)}%")
                     st.write(f"Goal: €{plan['goal']:.2f}, Saved: €{plan['saved']:.2f}")
                 with col2:
-                    button_html = f'<button class="green-button" onclick="window.Streamlit.setComponentValue({{action: \'add_to_plan_{i}\'}})">Add to Plan</button>'
-                    st.markdown(button_html, unsafe_allow_html=True)
-                    if f'add_to_plan_{i}_trigger' in st.session_state and st.session_state[f'add_to_plan_{i}_trigger']:
-                        amount = st.number_input("Add Amount (€)", key=f"add_amount_{i}", value=0.0)
+                    if st.button("Add to Plan", key=f"add_to_plan_{i}"):
+                        amount = st.number_input("Add Amount (€)", key=f"add_amount_{i}", value=0.0, step=1.0, format="%.0f")
                         if amount <= st.session_state.balance and amount > 0:
                             plan['saved'] += amount
                             st.session_state.balance -= amount
@@ -212,27 +223,11 @@ with col1:
                             st.success(f"Added €{amount:.2f} to {plan['name']}. New balance: €{st.session_state.balance:.2f}")
                         else:
                             st.error("Insufficient balance or invalid amount.")
-                        st.session_state[f'add_to_plan_{i}_trigger'] = False
                 st.markdown('</div>', unsafe_allow_html=True)
 # Placeholder for second column
 with col2:
     st.write("LLM Query section will be implemented in the next subtask.")
 st.markdown('</div>', unsafe_allow_html=True)
-
-# Handle button events
-if 'save_plan_trigger' not in st.session_state:
-    st.session_state.save_plan_trigger = False
-for i in range(3):
-    if f'add_to_plan_{i}_trigger' not in st.session_state:
-        st.session_state[f'add_to_plan_{i}_trigger'] = False
-if st.session_state.get('component_value'):
-    action = st.session_state.component_value.get('action')
-    if action == 'save_plan':
-        st.session_state.save_plan_trigger = True
-    elif action and action.startswith('add_to_plan_'):
-        i = int(action.split('_')[-1])
-        st.session_state[f'add_to_plan_{i}_trigger'] = True
-    st.session_state.component_value = None
 
 # Wrap entire dashboard content in <div class="dashboard-container">
 st.markdown('</div>', unsafe_allow_html=True)
