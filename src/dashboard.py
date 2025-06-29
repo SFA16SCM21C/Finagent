@@ -79,7 +79,7 @@ with col1:
         with open(budget_path, "r") as f:
             budget_data = json.load(f)
         months = list(budget_data.keys())
-        selected_month = st.selectbox("Select Month", months, index=months.index("2025-06") if "2025-06" in months else 0)
+        selected_month = st.selectbox("Select Month", months, index=months.index("2025-06") if "2025-06" in months else 0, key="budget_month_select")
         budget = budget_data[selected_month]
         fig = px.pie(
             values=[budget["needs"]["amount"], budget["wants"]["amount"], budget["savings_debt"]["amount"]],
@@ -90,9 +90,33 @@ with col1:
         st.plotly_chart(fig, use_container_width=True)
     else:
         st.error("Budget report not found at data/budget_report.json")
-# Placeholder for second column
 with col2:
-    st.write("Spending Analysis will be implemented in the next subtask.")
+    # Spending Analysis (Bar Chart with Dropdown, Risks, and Debt Strategy)
+    budget_path = "data/budget_report.json"
+    transactions_path = "data/transactions_cleaned.json"
+    if os.path.exists(budget_path) and os.path.exists(transactions_path):
+        with open(budget_path, "r") as f:
+            budget_data = json.load(f)
+        months = list(budget_data.keys())
+        selected_month = st.selectbox("Select Month", months, index=months.index("2025-06") if "2025-06" in months else 0, key="spending_month_select")
+        budget = budget_data[selected_month]
+        st.markdown("### Spending Analysis")
+        df = pd.read_json(transactions_path)
+        df["date"] = pd.to_datetime(df["date"])
+        df_month = df[(df["date"].dt.to_period("M") == pd.to_datetime(selected_month).to_period("M")) & (df["amount"] > 0)]
+        spending = df_month.groupby("category")["amount"].sum().to_dict()
+        st.bar_chart(spending, color="#00695C")
+        # Recompute risks and debt strategy if not in budget
+        total_spending = sum(spending.values())
+        income = budget.get("income", 4000.0)  # Default to 4000 if not in budget
+        wants_spending = spending.get("Shopping", 0) + spending.get("Entertainment", 0) + spending.get("Travel", 0)
+        savings_debt_spending = spending.get("Other", 0)
+        risks = "High" if wants_spending > income * 0.30 or savings_debt_spending < income * 0.20 else "Low"
+        debt_strategy = f"Pay off €5000.0 in {5000.0 / max(income * 0.20 - savings_debt_spending, 1):.1f} months with €{max(income * 0.20 - savings_debt_spending, 0):.2f}/month" if income * 0.20 - savings_debt_spending > 0 else "No payoff plan; increase savings or reduce debt spending"
+        st.write(f"**Risks**: {risks}")
+        st.write(f"**Debt Strategy**: {debt_strategy}")
+    else:
+        st.error("Budget report or transactions data not found.")
 st.markdown('</div>', unsafe_allow_html=True)
 
 # Placeholder for future rows
