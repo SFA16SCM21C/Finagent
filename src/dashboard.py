@@ -6,14 +6,14 @@ import json
 import pandas as pd
 import plotly.express as px
 
-# Custom CSS for layout with green theme, 80rem max width
+# Custom CSS for layout with green theme, 80rem max width, and 2rem top margin
 st.markdown(
     """
     <style>
     /* Target Streamlit's main content container */
     .block-container {
         max-width: 80rem !important;
-        margin: 0 auto !important;
+        margin: -2rem auto !important; /* 2rem top margin, auto left/right for centering */
         background-color: transparent !important;
     }
     .dashboard-row {
@@ -80,8 +80,8 @@ if os.path.exists(saving_path):
 else:
     st.session_state.savings_plans = [{'name': '', 'goal': 0.0, 'saved': 0.0} for _ in range(3)]  # Max 3 plans
 
-# Wrap entire dashboard content in <div class="dashboard-container">
-st.markdown('<div class="dashboard-container">', unsafe_allow_html=True)
+# Wrap entire dashboard content in <div class="main"> (though using .block-container in CSS)
+# Note: No explicit <div> needed since .block-container is targeted directly
 
 # First Row: Logo and Header
 st.markdown('<div class="dashboard-row">', unsafe_allow_html=True)
