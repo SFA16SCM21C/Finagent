@@ -13,7 +13,7 @@ st.markdown(
     /* Target Streamlit's main content container */
     .block-container {
         max-width: 80rem !important;
-        margin: -5rem auto !important; /* 2rem top margin, auto left/right for centering */
+        margin: 2rem auto !important; /* 2rem top margin, auto left/right for centering */
         background-color: transparent !important;
     }
     .dashboard-row {
@@ -41,9 +41,10 @@ st.markdown(
         font-size: 24px; /* Base size for header */
     }
     .section-header {
-        font-size: 20px; /* One size bigger than header (24px + 4px) */
+        font-size: 28px; /* One size bigger than header (24px + 4px) */
         color: #00695C; /* Green for section headers */
         font-family: 'Roboto', sans-serif; /* Consistent font */
+        margin-bottom: 10px; /* Space below heading */
     }
     .savings-plan {
         padding: 10px;
@@ -63,12 +64,6 @@ st.markdown(
     .green-button:hover {
         background-color: #004D40; /* Darker green/teal on hover */
     }
-    .instruction-text {
-        font-size: 0.9rem; /* 1rem less than default */
-        font-style: italic;
-        color: #666; /* Subtle gray for contrast */
-        margin-top: 5px;
-    }
     </style>
     """,
     unsafe_allow_html=True
@@ -85,6 +80,12 @@ if os.path.exists(saving_path):
         st.session_state.savings_plans = json.load(f)
 else:
     st.session_state.savings_plans = [{'name': '', 'goal': 0.0, 'saved': 0.0} for _ in range(3)]  # Max 3 plans
+
+# State to track creation mode and selected plan index
+if 'creating_plan' not in st.session_state:
+    st.session_state.creating_plan = False
+if 'selected_plan_index' not in st.session_state:
+    st.session_state.selected_plan_index = None
 
 # Wrap entire dashboard content in <div class="dashboard-container">
 # Note: Using .block-container in CSS, no explicit <div> needed
@@ -131,7 +132,8 @@ with col1:
         fig = px.pie(
             values=[budget["needs"]["amount"], budget["wants"]["amount"], budget["savings_debt"]["amount"]],
             names=["Needs", "Wants", "Savings/Debt"],
-            color_discrete_sequence=["#00695C", "#4CAF50", "#A5D6A7"]
+            color_discrete_sequence=["#00695C", "#4CAF50", "#A5D6A7"],  # Green shades
+            title=f"Budget Distribution for {selected_month}"
         )
         st.plotly_chart(fig, use_container_width=True)
     else:
@@ -172,19 +174,21 @@ with col1:
     st.markdown('<h3 class="section-header">Savings Plan</h3>', unsafe_allow_html=True)
     saving_path = "data/saving.json"
     if not os.path.exists(saving_path) or not any(plan['name'] for plan in st.session_state.savings_plans):
-        st.write("No saving plan to show")
-        st.markdown('<p class="instruction-text">(You can create 3 plans maximum)</p>', unsafe_allow_html=True)
-        button_html = f'<button class="green-button" onclick="window.Streamlit.setComponentValue({{action: \'create_plan\'}})">Create Plan</button>'
-        st.markdown(button_html, unsafe_allow_html=True)
-        if 'create_plan_trigger' in st.session_state and st.session_state.create_plan_trigger:
-            for i in range(3):
-                if st.session_state.savings_plans[i]['name'] == '':
-                    st.session_state.savings_plans[i]['name'] = st.text_input("Plan Name", key=f"plan_name_{i}", value=f"Plan {i+1}")
-                    st.session_state.savings_plans[i]['goal'] = st.number_input("Goal Amount (€)", key=f"plan_goal_{i}", value=0.0)
-                    with open(saving_path, "w") as f:
-                        json.dump(st.session_state.savings_plans, f)
-                    st.session_state.create_plan_trigger = False
-                    break
+        col1, col2 = st.columns([3, 1])  # Adjust column ratio for layout
+        with col1:
+            plan_name = st.text_input("Plan Name", key="new_plan_name", value="")
+        with col2:
+            button_html = f'<button class="green-button" onclick="window.Streamlit.setComponentValue({{action: \'save_plan\'}})">Save Plan</button>'
+            st.markdown(button_html, unsafe_allow_html=True)
+            if 'save_plan_trigger' in st.session_state and st.session_state.save_plan_trigger:
+                for i in range(3):
+                    if st.session_state.savings_plans[i]['name'] == '':
+                        st.session_state.savings_plans[i]['name'] = plan_name
+                        st.session_state.savings_plans[i]['goal'] = st.number_input("Goal Amount (€)", key=f"plan_goal_{i}", value=0.0)
+                        with open(saving_path, "w") as f:
+                            json.dump(st.session_state.savings_plans, f)
+                        st.session_state.save_plan_trigger = False
+                        break
     else:
         for i, plan in enumerate(st.session_state.savings_plans):
             if plan['name']:
@@ -216,15 +220,15 @@ with col2:
 st.markdown('</div>', unsafe_allow_html=True)
 
 # Handle button events
-if 'create_plan_trigger' not in st.session_state:
-    st.session_state.create_plan_trigger = False
+if 'save_plan_trigger' not in st.session_state:
+    st.session_state.save_plan_trigger = False
 for i in range(3):
     if f'add_to_plan_{i}_trigger' not in st.session_state:
         st.session_state[f'add_to_plan_{i}_trigger'] = False
 if st.session_state.get('component_value'):
     action = st.session_state.component_value.get('action')
-    if action == 'create_plan':
-        st.session_state.create_plan_trigger = True
+    if action == 'save_plan':
+        st.session_state.save_plan_trigger = True
     elif action and action.startswith('add_to_plan_'):
         i = int(action.split('_')[-1])
         st.session_state[f'add_to_plan_{i}_trigger'] = True
