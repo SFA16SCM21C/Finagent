@@ -5,6 +5,7 @@ import os
 import json
 import pandas as pd
 import plotly.express as px
+import sqlite3
 
 # Custom CSS for layout with green theme, 80rem max width
 st.markdown(
@@ -37,6 +38,12 @@ st.markdown(
         text-align: center;
         color: white; /* White text for contrast */
         font-family: 'Roboto', sans-serif; /* Professional font */
+    }
+    .savings-plan {
+        padding: 10px;
+        background-color: #E0F2F1; /* Light green background */
+        border-radius: 8px;
+        margin-bottom: 10px;
     }
     </style>
     """,
@@ -106,9 +113,8 @@ with col2:
         df_month = df[(df["date"].dt.to_period("M") == pd.to_datetime(selected_month).to_period("M")) & (df["amount"] > 0)]
         spending = df_month.groupby("category")["amount"].sum().to_dict()
         st.bar_chart(spending, color="#00695C")
-        # Recompute risks and debt strategy if not in budget
         total_spending = sum(spending.values())
-        income = budget.get("income", 4000.0)  # Default to 4000 if not in budget
+        income = budget.get("income", 4000.0)
         wants_spending = spending.get("Shopping", 0) + spending.get("Entertainment", 0) + spending.get("Travel", 0)
         savings_debt_spending = spending.get("Other", 0)
         risks = "High" if wants_spending > income * 0.30 or savings_debt_spending < income * 0.20 else "Low"
@@ -119,5 +125,42 @@ with col2:
         st.error("Budget report or transactions data not found.")
 st.markdown('</div>', unsafe_allow_html=True)
 
+# Third Row: Savings Plan and LLM Query
+st.markdown('<div class="dashboard-row">', unsafe_allow_html=True)  # New row for columns
+col1, col2 = st.columns(2)  # Two equal-width columns
+with col1:
+    # Savings Plan Section
+    st.markdown("### Savings Plan")
+    if 'savings_plans' not in st.session_state:
+        st.session_state.savings_plans = [{'goal': 0.0, 'saved': 0.0} for _ in range(4)]
+    for i, plan in enumerate(st.session_state.savings_plans):
+        with st.expander(f"Plan {i+1}"):
+            st.markdown(f'<div class="savings-plan">', unsafe_allow_html=True)
+            col1, col2 = st.columns([1, 1])
+            with col1:
+                if st.button("Create Plan", key=f"create_plan_{i}"):
+                    goal = st.number_input("Set Goal (€)", key=f"goal_input_{i}", value=0.0)
+                    plan['goal'] = goal
+                if st.button("Add Saving", key=f"add_plan_{i}"):
+                    amount = st.number_input("Add Amount (€)", key=f"add_input_{i}", value=0.0)
+                    plan['saved'] += amount
+            with col2:
+                progress = plan['saved'] / max(plan['goal'], 1) if plan['goal'] > 0 else 0
+                st.progress(progress)
+                st.write(f"Goal: €{plan['goal']:.2f}, Saved: €{plan['saved']:.2f}")
+            st.markdown('</div>', unsafe_allow_html=True)
+    # Save to database (placeholder for now, to be implemented)
+    # conn = sqlite3.connect("data/finagent.db")
+    # cursor = conn.cursor()
+    # cursor.execute("CREATE TABLE IF NOT EXISTS savings_plans (plan_id INTEGER, goal REAL, saved REAL)")
+    # for i, plan in enumerate(st.session_state.savings_plans):
+    #     cursor.execute("INSERT OR REPLACE INTO savings_plans (plan_id, goal, saved) VALUES (?, ?, ?)", (i, plan['goal'], plan['saved']))
+    # conn.commit()
+    # conn.close()
+# Placeholder for second column
+with col2:
+    st.write("LLM Query section will be implemented in the next subtask.")
+st.markdown('</div>', unsafe_allow_html=True)
+
 # Placeholder for future rows
-st.write("Third row will be implemented in subsequent subtasks.")
+st.write("Additional rows will be implemented as needed.")
