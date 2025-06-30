@@ -14,7 +14,7 @@ st.markdown(
     /* Target Streamlit's main content container */
     .block-container {
         max-width: 80rem !important;
-        margin: 2rem auto !important; /* Corrected from -5rem to 2rem for proper centering */
+        margin: -5rem auto !important; /* Corrected from -5rem to 2rem for proper centering */
         background-color: transparent !important;
     }
     .dashboard-row {
@@ -46,12 +46,6 @@ st.markdown(
         color: #00695C; /* Green for section headers */
         font-family: 'Roboto', sans-serif; /* Consistent font */
         margin-bottom: 10px; /* Space below heading */
-    }
-    .savings-plan {
-        padding: 10px;
-        background-color: #E0F2F1; /* Light green background */
-        border-radius: 8px;
-        margin-bottom: 10px;
     }
     .green-button {
         background-color: #00695C; /* Green/teal accent color matching header */
@@ -186,7 +180,7 @@ with col1:
             st.write("Create a Savings Plan")
             plan_name = st.text_input("Plan Name", key="plan_name_input")
             plan_goal = st.number_input("Goal Amount (€)", key="plan_goal_input", value=0.0, step=1.0, format="%.0f")
-            if st.form_submit_button(label='<span class="green-button">Save Plan</span>', help="Save the new savings plan", unsafe_allow_html=True):
+            if st.form_submit_button("Save Plan", help="Save the new savings plan"):
                 if not plan_name.strip() or plan_goal < 0:
                     st.error("Plan name cannot be empty, and amount must be non-negative.")
                 else:
@@ -216,7 +210,7 @@ with col1:
                     else:
                         st.rerun()  # Refresh the page
     else:
-        st.markdown(f'<div class="savings-plan">', unsafe_allow_html=True)
+        st.markdown(f'<div>', unsafe_allow_html=True)
         st.write(f"**{st.session_state.savings_plan['name']}**")
         col1, col2 = st.columns([4, 1])
         with col1:
@@ -226,7 +220,7 @@ with col1:
             st.write(f"Remaining Balance: €{st.session_state.balance:.2f}")
         with col2:
             amount = st.number_input("Add Amount (€)", key="add_amount_input", value=0.0, step=1.0, format="%.0f")
-            if st.button(label='<span class="green-button">Add to Plan</span>', key="add_to_plan_button", help="Add money to the savings plan", unsafe_allow_html=True):
+            if st.button("Add to Plan", key="add_to_plan_button"):
                 if amount <= st.session_state.balance and amount > 0:
                     st.session_state.savings_plan['saved'] += amount
                     st.session_state.balance -= amount
