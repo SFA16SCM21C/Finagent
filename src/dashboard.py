@@ -76,8 +76,15 @@ if 'balance' not in st.session_state:
 # Load or initialize saving plans from JSON
 saving_path = "data/saving.json"
 if os.path.exists(saving_path):
-    with open(saving_path, "r") as f:
-        st.session_state.savings_plans = json.load(f)
+    try:
+        with open(saving_path, "r") as f:
+            st.session_state.savings_plans = json.load(f)
+            # Ensure the list has exactly 3 slots
+            if len(st.session_state.savings_plans) != 3:
+                st.session_state.savings_plans = st.session_state.savings_plans[:3]
+    except json.JSONDecodeError:
+        st.error("Invalid JSON format in saving.json. Resetting to default.")
+        st.session_state.savings_plans = [{'name': '', 'goal': 0.0, 'saved': 0.0} for _ in range(3)]
 else:
     st.session_state.savings_plans = [{'name': '', 'goal': 0.0, 'saved': 0.0} for _ in range(3)]  # Max 3 plans
 
@@ -88,6 +95,10 @@ if 'new_plan_name' not in st.session_state:
     st.session_state.new_plan_name = ""
 if 'new_plan_goal' not in st.session_state:
     st.session_state.new_plan_goal = 0.0
+
+# Count existing plans
+plan_count = sum(1 for plan in st.session_state.savings_plans if plan['name'])
+st.write(f"Debug: Current plan_count = {plan_count}")  # Debug output
 
 # Wrap entire dashboard content in <div class="dashboard-container">
 # Note: Using .block-container in CSS, no explicit <div> needed
@@ -175,8 +186,10 @@ with col1:
     # Savings Plan Section
     st.markdown('<h3 class="section-header">Savings Plan</h3>', unsafe_allow_html=True)
     saving_path = "data/saving.json"
+    # Recalculate plan_count to ensure it reflects the latest state
+    plan_count = sum(1 for plan in st.session_state.savings_plans if plan['name'])
     if not os.path.exists(saving_path) or not any(plan['name'] for plan in st.session_state.savings_plans):
-        if not st.session_state.creating_plan:
+        if plan_count < 3:  # Show "Create Plan" if less than 3 plans
             st.write("No saving plan to show")
             st.write("(You can create 3 plans maximum)")
             if st.button("Create Plan", key="create_plan_button"):
@@ -196,20 +209,26 @@ with col1:
                     if not st.session_state.new_plan_name.strip() or st.session_state.new_plan_goal < 0:
                         st.error("Plan name cannot be empty, and amount must be non-negative.")
                     else:
-                        for i in range(3):
+                        saved = False
+                        for i in range(3):  # Loop through 3 slots
                             if st.session_state.savings_plans[i]['name'] == '':
                                 st.session_state.savings_plans[i]['name'] = st.session_state.new_plan_name.strip()
                                 st.session_state.savings_plans[i]['goal'] = st.session_state.new_plan_goal
                                 try:
                                     with open(saving_path, "w") as f:
                                         json.dump(st.session_state.savings_plans, f)
+                                except PermissionError:
+                                    st.error("Permission denied to write to saving.json. Please check file permissions.")
                                 except Exception as e:
                                     st.error(f"Failed to save plan: {e}")
                                 else:
-                                    st.experimental_rerun()  # Refresh the page after saving
-                                break
+                                    saved = True
+                                    break
+                        if saved:
+                            st.session_state.creating_plan = False  # Reset to show "Create Plan" after save
+                            st.rerun()  # Refresh the page after saving
                         else:
-                            st.error("Maximum 3 plans reached.")
+                            st.error("Maximum 3 plans reached or no empty slot available.")
                 if cancel_plan:
                     st.session_state.creating_plan = False
                     st.session_state.new_plan_name = ""
@@ -233,6 +252,8 @@ with col1:
                             try:
                                 with open(saving_path, "w") as f:
                                     json.dump(st.session_state.savings_plans, f)
+                            except PermissionError:
+                                st.error("Permission denied to write to saving.json. Please check file permissions.")
                             except Exception as e:
                                 st.error(f"Failed to update plan: {e}")
                             else:
