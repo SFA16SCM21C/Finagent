@@ -243,15 +243,15 @@ with col1:
                     else:
                         st.rerun()  # Refresh the page
     else:
-        st.markdown(f'<div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="savings-plan">', unsafe_allow_html=True)
         st.write(f"**{st.session_state.savings_plan['name']}**")
-        col1, col2 = st.columns([4, 1])
-        with col1:
+        col_1, col_2 = st.columns([3, 1])  # Adjusted for better layout
+        with col_1:
             progress = st.session_state.savings_plan['saved'] / max(st.session_state.savings_plan['goal'], 1) if st.session_state.savings_plan['goal'] > 0 else 0
             st.progress(progress, text=f"{int(progress * 100)}%")
             st.write(f"Goal: €{st.session_state.savings_plan['goal']:.2f}, Saved: €{st.session_state.savings_plan['saved']:.2f}")
             st.write(f"Remaining Balance: €{st.session_state.balance:.2f}")
-        with col2:
+        with col_2:
             amount = st.number_input("Add Amount (€)", key="add_amount_input", value=0.0, step=1.0, format="%.0f")
             if st.button("Add to Plan", key="add_to_plan_button"):
                 if amount <= st.session_state.balance and amount > 0:
@@ -283,8 +283,8 @@ with col1:
                 else:
                     st.error("Insufficient balance or invalid amount.")
         st.markdown('</div>', unsafe_allow_html=True)
-# LLM Query Section
 with col2:
+    # LLM Query Section
     st.markdown('<h3 class="section-header">LLM Query</h3>', unsafe_allow_html=True)
     query = st.text_input("Ask a financial question", key="llm_query_input")
     if st.button("Get Response", key="get_response_button"):
