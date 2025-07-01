@@ -14,7 +14,7 @@ st.markdown(
     /* Target Streamlit's main content container */
     .block-container {
         max-width: 80rem !important;
-        margin: -5rem auto !important; /* Corrected from -5rem to 2rem for proper centering */
+        margin: 2rem auto !important; /* Corrected from -5rem to 2rem for proper centering */
         background-color: transparent !important;
     }
     .dashboard-row {
@@ -47,17 +47,50 @@ st.markdown(
         font-family: 'Roboto', sans-serif; /* Consistent font */
         margin-bottom: 10px; /* Space below heading */
     }
-    .green-button {
-        background-color: #00695C; /* Green/teal accent color matching header */
-        color: white;
-        padding: 5px 15px;
-        border-radius: 5px;
-        border: none;
-        cursor: pointer;
-        font-family: 'Roboto', sans-serif;
+    .savings-plan {
+        padding: 10px;
+        background-color: #E0F2F1; /* Light green background */
+        border-radius: 8px;
+        margin-bottom: 10px;
     }
-    .green-button:hover {
-        background-color: #004D40; /* Darker green/teal on hover */
+    /* Target the specific form submit button by its key */
+    button[data-testid="stFormSubmitButton"]#save_plan_button {
+        background-color: #00695C !important;
+        color: white !important;
+        padding: 5px 15px !important;
+        border-radius: 5px !important;
+        border: none !important;
+        cursor: pointer !important;
+        font-family: 'Roboto', sans-serif !important;
+    }
+    button[data-testid="stFormSubmitButton"]#save_plan_button:hover {
+        background-color: #004D40 !important;
+    }
+    /* Target the Add to Plan button by its key */
+    button[data-testid="stButton"]#add_to_plan_button {
+        background-color: #00695C !important;
+        color: white !important;
+        padding: 5px 15px !important;
+        border-radius: 5px !important;
+        border: none !important;
+        cursor: pointer !important;
+        font-family: 'Roboto', sans-serif !important;
+    }
+    button[data-testid="stButton"]#add_to_plan_button:hover {
+        background-color: #004D40 !important;
+    }
+    /* Target the Get Response button by its key */
+    button[data-testid="stButton"]#get_response_button {
+        background-color: #00695C !important;
+        color: white !important;
+        padding: 5px 15px !important;
+        border-radius: 5px !important;
+        border: none !important;
+        cursor: pointer !important;
+        font-family: 'Roboto', sans-serif !important;
+    }
+    button[data-testid="stButton"]#get_response_button:hover {
+        background-color: #004D40 !important;
     }
     </style>
     """,
@@ -180,7 +213,7 @@ with col1:
             st.write("Create a Savings Plan")
             plan_name = st.text_input("Plan Name", key="plan_name_input")
             plan_goal = st.number_input("Goal Amount (€)", key="plan_goal_input", value=0.0, step=1.0, format="%.0f")
-            if st.form_submit_button("Save Plan", help="Save the new savings plan"):
+            if st.form_submit_button("Save Plan", key="save_plan_button", help="Save the new savings plan"):
                 if not plan_name.strip() or plan_goal < 0:
                     st.error("Plan name cannot be empty, and amount must be non-negative.")
                 else:
@@ -250,9 +283,18 @@ with col1:
                 else:
                     st.error("Insufficient balance or invalid amount.")
         st.markdown('</div>', unsafe_allow_html=True)
-# Placeholder for second column
+# LLM Query Section
 with col2:
-    st.write("LLM Query section will be implemented in the next subtask.")
+    st.markdown('<h3 class="section-header">LLM Query</h3>', unsafe_allow_html=True)
+    query = st.text_input("Ask a financial question", key="llm_query_input")
+    if st.button("Get Response", key="get_response_button"):
+        if query.strip():
+            # Simulate LLM response (placeholder until API integration)
+            savings_progress = (st.session_state.savings_plan['saved'] / st.session_state.savings_plan['goal'] * 100) if st.session_state.savings_plan['goal'] > 0 else 0
+            response = f"Based on your data: Savings progress is {savings_progress:.1f}%, Balance is €{st.session_state.balance:.2f}. Consider increasing savings if below 20% of income."
+            st.write("**Response:**", response)
+        else:
+            st.warning("Please enter a question.")
 st.markdown('</div>', unsafe_allow_html=True)
 
 # Wrap entire dashboard content in <div class="dashboard-container">
