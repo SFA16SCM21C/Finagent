@@ -14,7 +14,7 @@ st.markdown(
     /* Target Streamlit's main content container */
     .block-container {
         max-width: 80rem !important;
-        margin: -5rem auto !important; /* Corrected from -5rem to 2rem for proper centering */
+        margin: 2rem auto !important; /* Corrected from -5rem to 2rem for proper centering */
         background-color: transparent !important;
     }
     .dashboard-row {
@@ -47,17 +47,50 @@ st.markdown(
         font-family: 'Roboto', sans-serif; /* Consistent font */
         margin-bottom: 10px; /* Space below heading */
     }
-    .green-button {
-        background-color: #00695C; /* Green/teal accent color matching header */
-        color: white;
-        padding: 5px 15px;
-        border-radius: 5px;
-        border: none;
-        cursor: pointer;
-        font-family: 'Roboto', sans-serif;
+    .savings-plan {
+        padding: 10px;
+        background-color: #E0F2F1; /* Light green background */
+        border-radius: 8px;
+        margin-bottom: 10px;
     }
-    .green-button:hover {
-        background-color: #004D40; /* Darker green/teal on hover */
+    /* Target the specific form submit button by its key */
+    button[data-testid="stFormSubmitButton"]#save_plan_button {
+        background-color: #00695C !important;
+        color: white !important;
+        padding: 5px 15px !important;
+        border-radius: 5px !important;
+        border: none !important;
+        cursor: pointer !important;
+        font-family: 'Roboto', sans-serif !important;
+    }
+    button[data-testid="stFormSubmitButton"]#save_plan_button:hover {
+        background-color: #004D40 !important;
+    }
+    /* Target the Add to Plan button by its key */
+    button[data-testid="stButton"]#add_to_plan_button {
+        background-color: #00695C !important;
+        color: white !important;
+        padding: 5px 15px !important;
+        border-radius: 5px !important;
+        border: none !important;
+        cursor: pointer !important;
+        font-family: 'Roboto', sans-serif !important;
+    }
+    button[data-testid="stButton"]#add_to_plan_button:hover {
+        background-color: #004D40 !important;
+    }
+    /* Target the Get Response button by its key */
+    button[data-testid="stButton"]#get_response_button {
+        background-color: #00695C !important;
+        color: white !important;
+        padding: 5px 15px !important;
+        border-radius: 5px !important;
+        border: none !important;
+        cursor: pointer !important;
+        font-family: 'Roboto', sans-serif !important;
+    }
+    button[data-testid="stButton"]#get_response_button:hover {
+        background-color: #004D40 !important;
     }
     </style>
     """,
@@ -180,7 +213,7 @@ with col1:
             st.write("Create a Savings Plan")
             plan_name = st.text_input("Plan Name", key="plan_name_input")
             plan_goal = st.number_input("Goal Amount (€)", key="plan_goal_input", value=0.0, step=1.0, format="%.0f")
-            if st.form_submit_button("Save Plan", help="Save the new savings plan"):
+            if st.form_submit_button("Save Plan", key="save_plan_button", help="Save the new savings plan"):
                 if not plan_name.strip() or plan_goal < 0:
                     st.error("Plan name cannot be empty, and amount must be non-negative.")
                 else:
@@ -210,15 +243,15 @@ with col1:
                     else:
                         st.rerun()  # Refresh the page
     else:
-        st.markdown(f'<div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="savings-plan">', unsafe_allow_html=True)
         st.write(f"**{st.session_state.savings_plan['name']}**")
-        col1, col2 = st.columns([4, 1])
-        with col1:
+        col_1, col_2 = st.columns([3, 1])  # Adjusted for better layout
+        with col_1:
             progress = st.session_state.savings_plan['saved'] / max(st.session_state.savings_plan['goal'], 1) if st.session_state.savings_plan['goal'] > 0 else 0
             st.progress(progress, text=f"{int(progress * 100)}%")
             st.write(f"Goal: €{st.session_state.savings_plan['goal']:.2f}, Saved: €{st.session_state.savings_plan['saved']:.2f}")
             st.write(f"Remaining Balance: €{st.session_state.balance:.2f}")
-        with col2:
+        with col_2:
             amount = st.number_input("Add Amount (€)", key="add_amount_input", value=0.0, step=1.0, format="%.0f")
             if st.button("Add to Plan", key="add_to_plan_button"):
                 if amount <= st.session_state.balance and amount > 0:
@@ -250,9 +283,19 @@ with col1:
                 else:
                     st.error("Insufficient balance or invalid amount.")
         st.markdown('</div>', unsafe_allow_html=True)
-# Placeholder for second column
 with col2:
-    st.write("LLM Query section will be implemented in the next subtask.")
+    # LLM Query Section
+    st.markdown('<h3 class="section-header">LLM Query</h3>', unsafe_allow_html=True)
+    st.write("**Instruction:** Ask specific, clear questions about your finances, referencing your dashboard data like savings progress, budget, or spending habits (e.g., 'What’s my savings progress?' or 'How can I save more?'). Seek actionable advice, such as 'Should I adjust my budget?' or 'How to reduce overspending?', to get practical suggestions based on your savings plan, balance, and transactions. Experiment with different queries to refine your prompts.")
+    query = st.text_input("Ask a financial question", key="llm_query_input")
+    if st.button("Get Response", key="get_response_button"):
+        if query.strip():
+            # Simulate LLM response (placeholder until API integration)
+            savings_progress = (st.session_state.savings_plan['saved'] / st.session_state.savings_plan['goal'] * 100) if st.session_state.savings_plan['goal'] > 0 else 0
+            response = f"Based on your data: Savings progress is {savings_progress:.1f}%, Balance is €{st.session_state.balance:.2f}. Consider increasing savings if below 20% of income."
+            st.write("**Response:**", response)
+        else:
+            st.warning("Please enter a question.")
 st.markdown('</div>', unsafe_allow_html=True)
 
 # Wrap entire dashboard content in <div class="dashboard-container">
