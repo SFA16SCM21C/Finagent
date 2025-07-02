@@ -286,7 +286,9 @@ with col1:
 with col2:
     # LLM Query Section
     st.markdown('<h3 class="section-header">LLM Query</h3>', unsafe_allow_html=True)
-    st.write("**Instructions:** For best results, ask specific questions like 'What’s my savings progress?', 'How can I optimize my budget?', or 'What are my spending risks?' Be specific, use clear language, reference your dashboard data (e.g., savings plan, budget), ask for actionable advice, and test with examples from the top 20 questions.")
+    st.write("**Instructions:**")
+    st.write("- Be specific: Ask about your savings progress, budget allocation, or spending habits (e.g., 'What’s my savings progress?' or 'How much am I spending on wants?'). Use clear and concise language: Frame questions simply (e.g., 'How can I save more?' instead of 'What should I do?').")
+    st.write("- Reference your dashboard data: Mention your savings plan, balance, or budget categories (e.g., 'Is my budget for needs on track?' or 'How does my balance affect my savings goal?'). Seek actionable advice: Request practical suggestions (e.g., 'What can I do to reduce overspending?' or 'Should I adjust my savings plan?'). Experiment with questions: Try different queries to find what works best and refine based on the responses.")
     query = st.text_input("Ask a financial question", key="llm_query_input")
     if st.button("Get Response", key="get_response_button"):
         if query.strip():
