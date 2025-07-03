@@ -13,8 +13,8 @@ st.markdown(
     <style>
     /* Target Streamlit's main content container */
     .block-container {
-        max-width: 80rem !important;
-        margin: 2rem auto !important; /* Corrected from -5rem to 2rem for proper centering */
+        max-width: 95rem !important;
+        margin: -5rem auto !important; /* Corrected from -5rem to 2rem for proper centering */
         background-color: transparent !important;
     }
     .dashboard-row {
@@ -47,12 +47,7 @@ st.markdown(
         font-family: 'Roboto', sans-serif; /* Consistent font */
         margin-bottom: 10px; /* Space below heading */
     }
-    .savings-plan {
-        padding: 10px;
-        background-color: #E0F2F1; /* Light green background */
-        border-radius: 8px;
-        margin-bottom: 10px;
-    }
+    
     /* Target the specific form submit button by its key */
     button[data-testid="stFormSubmitButton"]#save_plan_button {
         background-color: #00695C !important;
@@ -287,7 +282,7 @@ with col2:
     # LLM Query Section
     st.markdown('<h3 class="section-header">LLM Query</h3>', unsafe_allow_html=True)
     st.write("**Instruction:** Ask specific, clear questions about your finances, referencing your dashboard data like savings progress, budget, or spending habits (e.g., 'What’s my savings progress?' or 'How can I save more?'). Seek actionable advice, such as 'Should I adjust my budget?' or 'How to reduce overspending?', to get practical suggestions based on your savings plan, balance, and transactions. Experiment with different queries to refine your prompts.")
-    query = st.text_input("Ask a financial question", key="llm_query_input")
+    query = st.text_input("Ask your question", key="llm_query_input")
     if st.button("Get Response", key="get_response_button"):
         if query.strip():
             # Simulate LLM response (placeholder until API integration)
@@ -301,5 +296,4 @@ st.markdown('</div>', unsafe_allow_html=True)
 # Wrap entire dashboard content in <div class="dashboard-container">
 st.markdown('</div>', unsafe_allow_html=True)
 
-# Placeholder for future rows
-st.write("Additional rows will be implemented as needed.")
+st.markdown('<h1 class="header-area"></h1>', unsafe_allow_html=True)
