@@ -1,4 +1,3 @@
-# src/clean_transactions.py
 import pandas as pd
 import os
 
@@ -49,8 +48,9 @@ def clean_transactions(transactions, output_path="data/transactions_cleaned.json
         ]
         df = df[available_columns] if available_columns else df
 
-        # Drop rows missing critical fields
-        df = df.dropna(subset=["date", "amount"])
+        # Define required fields and filter rows missing any
+        required_fields = ["transaction_id", "date", "amount", "personal_finance_category"]
+        df = df.dropna(subset=required_fields)
 
         # Convert dates to datetime with explicit ISO format
         df["date"] = pd.to_datetime(df["date"], errors="coerce", format="%Y-%m-%d")
