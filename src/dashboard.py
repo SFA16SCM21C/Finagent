@@ -282,7 +282,7 @@ with col2:
     # LLM Query Section
     st.markdown('<h3 class="section-header">LLM Query</h3>', unsafe_allow_html=True)
     st.write("**Instruction:** Ask specific, clear questions about your finances, referencing your dashboard data like savings progress, budget, or spending habits (e.g., 'What’s my savings progress?' or 'How can I save more?'). Seek actionable advice, such as 'Should I adjust my budget?' or 'How to reduce overspending?', to get practical suggestions based on your savings plan, balance, and transactions. Experiment with different queries to refine your prompts.")
-    query = st.text_input("Ask a financial question", key="llm_query_input")
+    query = st.text_input("Ask your question", key="llm_query_input")
     if st.button("Get Response", key="get_response_button"):
         if query.strip():
             # Simulate LLM response (placeholder until API integration)
