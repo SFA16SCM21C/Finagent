@@ -13,8 +13,8 @@ st.markdown(
     <style>
     /* Target Streamlit's main content container */
     .block-container {
-        max-width: 80rem !important;
-        margin: 2rem auto !important; /* Corrected from -5rem to 2rem for proper centering */
+        max-width: 95rem !important;
+        margin: -5rem auto !important; /* Corrected from -5rem to 2rem for proper centering */
         background-color: transparent !important;
     }
     .dashboard-row {
@@ -47,12 +47,7 @@ st.markdown(
         font-family: 'Roboto', sans-serif; /* Consistent font */
         margin-bottom: 10px; /* Space below heading */
     }
-    .savings-plan {
-        padding: 10px;
-        background-color: #E0F2F1; /* Light green background */
-        border-radius: 8px;
-        margin-bottom: 10px;
-    }
+    
     /* Target the specific form submit button by its key */
     button[data-testid="stFormSubmitButton"]#save_plan_button {
         background-color: #00695C !important;
@@ -301,5 +296,4 @@ st.markdown('</div>', unsafe_allow_html=True)
 # Wrap entire dashboard content in <div class="dashboard-container">
 st.markdown('</div>', unsafe_allow_html=True)
 
-# Placeholder for future rows
-st.write("Additional rows will be implemented as needed.")
+st.markdown('<h1 class="header-area"></h1>', unsafe_allow_html=True)
