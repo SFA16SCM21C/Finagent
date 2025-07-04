@@ -13,7 +13,7 @@ st.markdown(
     <style>
     /* Target Streamlit's main content container */
     .block-container {
-        max-width: 95rem !important;
+        max-width: 98rem !important;
         margin: -5rem auto !important; /* Corrected from -5rem to 2rem for proper centering */
         background-color: transparent !important;
     }
@@ -31,7 +31,7 @@ st.markdown(
     .header-area {
         flex-grow: 1;
         padding: 10px;
-        background-color: #00695C; /* Green main color */
+        background-color: #0c49a6; /* Green main color */
         border-radius: 8px; /* Rounded corners on all sides */
         box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Subtle shadow for depth */
         max-height: 80px; /* Match row and logo height */
@@ -43,14 +43,14 @@ st.markdown(
     }
     .section-header {
         font-size: 28px; /* One size bigger than header (24px + 4px) */
-        color: #00695C; /* Green for section headers */
+        color: #0c49a6; /* Green for section headers */
         font-family: 'Roboto', sans-serif; /* Consistent font */
         margin-bottom: 10px; /* Space below heading */
     }
     
     /* Target the specific form submit button by its key */
     button[data-testid="stFormSubmitButton"]#save_plan_button {
-        background-color: #00695C !important;
+        background-color: #0c49a6 !important;
         color: white !important;
         padding: 5px 15px !important;
         border-radius: 5px !important;
@@ -59,11 +59,11 @@ st.markdown(
         font-family: 'Roboto', sans-serif !important;
     }
     button[data-testid="stFormSubmitButton"]#save_plan_button:hover {
-        background-color: #004D40 !important;
+        background-color: #2c75d4 !important;
     }
     /* Target the Add to Plan button by its key */
     button[data-testid="stButton"]#add_to_plan_button {
-        background-color: #00695C !important;
+        background-color: #013787 !important;
         color: white !important;
         padding: 5px 15px !important;
         border-radius: 5px !important;
@@ -72,11 +72,11 @@ st.markdown(
         font-family: 'Roboto', sans-serif !important;
     }
     button[data-testid="stButton"]#add_to_plan_button:hover {
-        background-color: #004D40 !important;
+        background-color: #2c75d4 !important;
     }
     /* Target the Get Response button by its key */
     button[data-testid="stButton"]#get_response_button {
-        background-color: #00695C !important;
+        background-color: #013787 !important;
         color: white !important;
         padding: 5px 15px !important;
         border-radius: 5px !important;
@@ -85,7 +85,7 @@ st.markdown(
         font-family: 'Roboto', sans-serif !important;
     }
     button[data-testid="stButton"]#get_response_button:hover {
-        background-color: #004D40 !important;
+        background-color: #013787 !important;
     }
     </style>
     """,
@@ -165,7 +165,7 @@ with col1:
         )
     else:
         st.markdown(
-            "<span style='font-size: 40px; color: #4CAF50;'>📈</span>",
+            "<span style='font-size: 40px; color: #4c6daf;'>📈</span>",
             unsafe_allow_html=True,
         )
     st.markdown("</div>", unsafe_allow_html=True)
@@ -202,7 +202,7 @@ with col1:
             budget["savings_debt"]["amount"],
         ],
         names=["Needs", "Wants", "Savings/Debt"],
-        color_discrete_sequence=["#00695C", "#4CAF50", "#A5D6A7"],
+        color_discrete_sequence=["#002769", "#4c68af", "#a5b1d6"],
         title=f"Budget Distribution for {selected_month}",
     )
     st.plotly_chart(fig, use_container_width=True)
@@ -229,7 +229,7 @@ with col2:
         & (transactions_df["amount"] > 0)
     ]
     spending = df_month.groupby("category")["amount"].sum().to_dict()
-    st.bar_chart(spending, color="#00695C")
+    st.bar_chart(spending, color="#002a69")
     total_spending = sum(spending.values())
     income = budget.get("income", 4000.0)
     wants_spending = (
