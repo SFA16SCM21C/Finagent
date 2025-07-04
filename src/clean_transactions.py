@@ -17,6 +17,7 @@ CATEGORY_MAPPING = {
     "LOAN_PAYMENTS": "Other",
 }
 
+
 def clean_transactions(transactions, output_path="data/transactions_cleaned.json"):
     """Clean and standardize transaction data based on API structure."""
     try:
@@ -49,22 +50,34 @@ def clean_transactions(transactions, output_path="data/transactions_cleaned.json
         df = df[available_columns] if available_columns else df
 
         # Define required fields and filter rows missing any
-        required_fields = ["transaction_id", "date", "amount", "personal_finance_category"]
+        required_fields = [
+            "transaction_id",
+            "date",
+            "amount",
+            "personal_finance_category",
+        ]
         df = df.dropna(subset=required_fields)
 
         # Convert dates to datetime with explicit ISO format
         df["date"] = pd.to_datetime(df["date"], errors="coerce", format="%Y-%m-%d")
         if "authorized_date" in df.columns:
-            df["authorized_date"] = pd.to_datetime(df["authorized_date"], errors="coerce", format="%Y-%m-%d")
+            df["authorized_date"] = pd.to_datetime(
+                df["authorized_date"], errors="coerce", format="%Y-%m-%d"
+            )
 
         # Adjust date based on authorized_date if present
         if "authorized_date" in df.columns:
+
             def adjust_date(row):
                 if pd.isna(row["authorized_date"]):
                     return row["date"]
-                if row["date"].day == 1 and row["authorized_date"].month == row["date"].month - 1:
+                if (
+                    row["date"].day == 1
+                    and row["authorized_date"].month == row["date"].month - 1
+                ):
                     return row["authorized_date"]
                 return row["date"]
+
             df["date"] = df.apply(adjust_date, axis=1)
 
         # Fill missing merchant_name with name
@@ -75,13 +88,27 @@ def clean_transactions(transactions, output_path="data/transactions_cleaned.json
 
         # Category mapping based on API fields
         def get_category(row):
-            if "personal_finance_category" in df.columns and isinstance(row["personal_finance_category"], dict) and "primary" in row["personal_finance_category"]:
+            if (
+                "personal_finance_category" in df.columns
+                and isinstance(row["personal_finance_category"], dict)
+                and "primary" in row["personal_finance_category"]
+            ):
                 return row["personal_finance_category"]["primary"]
-            if "category" in df.columns and isinstance(row["category"], list) and row["category"]:
-                return row["category"][0].split()[0] if row["category"] else "Uncategorized"
+            if (
+                "category" in df.columns
+                and isinstance(row["category"], list)
+                and row["category"]
+            ):
+                return (
+                    row["category"][0].split()[0]
+                    if row["category"]
+                    else "Uncategorized"
+                )
             return "Uncategorized"
 
-        df["category"] = df.apply(get_category, axis=1).map(CATEGORY_MAPPING).fillna("Uncategorized")
+        df["category"] = (
+            df.apply(get_category, axis=1).map(CATEGORY_MAPPING).fillna("Uncategorized")
+        )
 
         # Drop rows with invalid dates
         df = df.dropna(subset=["date"])
@@ -99,7 +126,9 @@ def clean_transactions(transactions, output_path="data/transactions_cleaned.json
         if "transaction_id" in df.columns:
             df = df.drop_duplicates(subset=["transaction_id"], keep="first")
         else:
-            df = df.drop_duplicates(subset=["date", "amount", "merchant_name"], keep="first")
+            df = df.drop_duplicates(
+                subset=["date", "amount", "merchant_name"], keep="first"
+            )
 
         # Select final columns
         final_columns = [
@@ -118,7 +147,9 @@ def clean_transactions(transactions, output_path="data/transactions_cleaned.json
 
         # Save cleaned data
         os.makedirs(os.path.dirname(output_path), exist_ok=True)
-        df.to_json(output_path, orient="records", indent=2, date_format="iso")  # ISO format for consistency
+        df.to_json(
+            output_path, orient="records", indent=2, date_format="iso"
+        )  # ISO format for consistency
         print(f"Cleaned transactions saved to {output_path}")
 
         return df
