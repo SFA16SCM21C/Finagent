@@ -8,3 +8,4 @@ torch==2.2.2
 numpy<2.0
 pytest==8.2.2
 pytest-cov
+streamlit
