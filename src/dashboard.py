@@ -24,7 +24,7 @@ st.markdown(
         overflow: hidden; /* Prevent overflow beyond 80px */
     }
     .logo-area {
-        width: 20rem; /* 320px at 16px base font size */
+        width: 5rem; /* 320px at 16px base font size */
         padding: 10px;
         text-align: center;
     }
@@ -150,11 +150,11 @@ else:
 # First Row: Logo and Header
 st.markdown('<div class="dashboard-row">', unsafe_allow_html=True)
 col1, col2 = st.columns(
-    [20, 60]
+    [10, 70]
 )  # 20rem logo, remaining space for header (proportional to 80rem)
 with col1:
     st.markdown('<div class="logo-area">', unsafe_allow_html=True)
-    logo_path = "data/finagent_logo.png"
+    logo_path = "data/finagent_logo.jpg"
     if os.path.exists(logo_path):
         with open(logo_path, "rb") as f:
             logo_base64 = base64.b64encode(f.read()).decode()
