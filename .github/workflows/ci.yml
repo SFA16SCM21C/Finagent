@@ -26,22 +26,40 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-          pip install pytest
+          pip install pytest black
 
-      - name: Set working directory and run tests
-        working-directory: src_old
+      - name: Run tests
         run: |
-          pytest . --verbose --cov=. --cov-report=xml
+          pytest tests --verbose --cov=src --cov-report=xml
 
-      - name: Check code formatting (optional)
+      - name: Check code formatting
         run: |
-          pip install black
           black --check src/
 
-      - name: Notify on failure (optional)
+      - name: Notify on failure
         if: failure()
         run: echo "Build failed! Please check logs."
 
-      - name: Build Docker image
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/finagent:${{ github.sha }},${{ secrets.DOCKER_USERNAME }}/finagent:latest
+
+      - name: Output run instructions
         run: |
-          docker build -t finagent:test .
+          echo "Docker image built and pushed successfully!"
+          echo "To run locally, use the following commands:"
+          echo "  docker pull ${{ secrets.DOCKER_USERNAME }}/finagent:latest"
+          echo "  docker run -p 8501:8501 ${{ secrets.DOCKER_USERNAME }}/finagent:latest"
+          echo "Then open http://localhost:8501 in your browser."
