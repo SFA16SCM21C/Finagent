@@ -63,15 +63,3 @@ jobs:
           echo "  docker pull ${{ secrets.DOCKER_USERNAME }}/finagent:latest"
           echo "  docker run -p 8501:8501 ${{ secrets.DOCKER_USERNAME }}/finagent:latest"
           echo "Then open http://localhost:8501 in your browser."
-
-      - name: Export static HTML
-        if: github.ref == 'refs/heads/master'  # Only on master branch
-        run: |
-          python export_static.py
-
-      - name: Deploy to GitHub Pages
-        if: github.ref == 'refs/heads/master'  # Only on master branch
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./docs
