@@ -55,3 +55,11 @@ jobs:
           context: .
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/finagent:${{ github.sha }},${{ secrets.DOCKER_USERNAME }}/finagent:latest
+
+      - name: Output run instructions
+        run: |
+          echo "Docker image built and pushed successfully!"
+          echo "To run locally, use the following commands:"
+          echo "  docker pull ${{ secrets.DOCKER_USERNAME }}/finagent:latest"
+          echo "  docker run -p 8501:8501 ${{ secrets.DOCKER_USERNAME }}/finagent:latest"
+          echo "Then open http://localhost:8501 in your browser."
