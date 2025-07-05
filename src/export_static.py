@@ -2,10 +2,11 @@ import time
 import os
 from playwright.sync_api import sync_playwright
 
+
 def export_static_html():
     # Create docs directory if it doesn't exist
     os.makedirs("docs", exist_ok=True)
-    
+
     with sync_playwright() as p:
         # Launch a browser
         browser = p.chromium.launch(headless=True)
@@ -26,6 +27,7 @@ def export_static_html():
         # Close the browser and kill Streamlit process
         browser.close()
         os.system("pkill -f streamlit")
+
 
 if __name__ == "__main__":
     export_static_html()
