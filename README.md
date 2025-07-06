@@ -60,7 +60,7 @@ Provides a template for integrating data visualization and AI features.
 
 **Getting Started**
 
-- Clone the repository: git clone [https://github.com/yourusername/Finagent](https://github.com/SFA16SCM21C/Finagent) {Clones the project to your local machine}
+- Clone the repository: git clone [Github Repository](https://github.com/SFA16SCM21C/Finagent) {Clones the project to your local machine}
 - Set up a virtual environment: python -m venv venv && source venv/bin/activate {Creates and activates a virtual environment}
 - Install dependencies: pip install -r requirements.txt {Installs required Python packages}
 - Run the main script: python src/main.py {Initializes the project, skip if not applicable}
