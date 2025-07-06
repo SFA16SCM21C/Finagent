@@ -1,5 +1,5 @@
 **FinAgent Dashboard**
-\n
+
 FinAgent is a financial dashboard application designed to help users manage their budgets, track spending, and plan savings. Built using Python and Streamlit, this project provides an interactive and user-friendly interface for visualizing financial data, analyzing spending habits, and setting financial goals. While the app is fully functional locally, it is not hosted dynamically due to deployment challenges. Instead, screenshots are provided to showcase its features. Initially, we explored using the Plaid API to fetch actual transaction data, but due to a limited dataset, we switched to generating sample data to properly demonstrate the project's capabilities.
 
 **Project Overview**
