@@ -391,12 +391,14 @@ with col2:
         if query.strip():
             # Convert transactions_data to DataFrame for filtering
             transactions_df = pd.DataFrame(st.session_state.transactions_data or [])
-            transactions_df["date"] = pd.to_datetime(transactions_df["date"], errors="coerce")
-    
+            transactions_df["date"] = pd.to_datetime(
+                transactions_df["date"], errors="coerce"
+            )
+
             # Parse query and generate response
             query_lower = query.lower()
             response = "Sorry, I couldn’t understand your question. Try asking about savings, balance, or spending by category and month (e.g., 'What’s my spending on transportation in June?')."
-    
+
             # Spending by category and month
             if "spending on" in query_lower and "in" in query_lower:
                 # Extract category and month
@@ -404,17 +406,37 @@ with col2:
                 try:
                     category_idx = parts.index("on") + 1
                     month_idx = parts.index("in") + 1
-                    category = " ".join(parts[category_idx:month_idx-1]).capitalize()
+                    category = " ".join(
+                        parts[category_idx : month_idx - 1]
+                    ).capitalize()
                     month_str = parts[month_idx]
                     # Assume month is like "June" or "2025-06", convert to number
-                    month_num = datetime.strptime(month_str, "%B").month if month_str in ["january", "february", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december"] else int(month_str.split("-")[1]) if "-" in month_str else 6  # Default to June if unclear
+                    month_num = (
+                        datetime.strptime(month_str, "%B").month
+                        if month_str
+                        in [
+                            "january",
+                            "february",
+                            "march",
+                            "april",
+                            "may",
+                            "june",
+                            "july",
+                            "august",
+                            "september",
+                            "october",
+                            "november",
+                            "december",
+                        ]
+                        else int(month_str.split("-")[1]) if "-" in month_str else 6
+                    )  # Default to June if unclear
                     year = 2025  # Adjust year as needed
-    
+
                     # Filter transactions
                     month_transactions = transactions_df[
-                        (transactions_df["date"].dt.month == month_num) &
-                        (transactions_df["date"].dt.year == year) &
-                        (transactions_df["category"].str.lower() == category.lower())
+                        (transactions_df["date"].dt.month == month_num)
+                        & (transactions_df["date"].dt.year == year)
+                        & (transactions_df["category"].str.lower() == category.lower())
                     ]
                     total_spending = month_transactions["amount"].sum()
                     if not month_transactions.empty:
@@ -423,25 +445,36 @@ with col2:
                         response = f"No spending data found for {category} in {month_str} {year}."
                 except (ValueError, IndexError):
                     response = "Please specify a valid category and month (e.g., 'What is my spending on transportation in June?')."
-    
+
             # Savings progress or balance
             elif "savings progress" in query_lower or "balance" in query_lower:
                 savings_progress = (
-                    (st.session_state.savings_plan["saved"] / st.session_state.savings_plan["goal"] * 100)
+                    (
+                        st.session_state.savings_plan["saved"]
+                        / st.session_state.savings_plan["goal"]
+                        * 100
+                    )
                     if st.session_state.savings_plan["goal"] > 0
                     else 0
                 )
                 response = f"Based on your data: Savings progress is {savings_progress:.1f}%, Balance is €{st.session_state.balance:.2f}. Consider increasing savings if below 20% of income."
-    
+
             # General advice
-            elif "how can i save more" in query_lower or "reduce overspending" in query_lower:
-                total_spending = transactions_df["amount"].sum() if not transactions_df.empty else 0
-                income = st.session_state.budget_data.get("2025-06", {}).get("income", 4000.0)
+            elif (
+                "how can i save more" in query_lower
+                or "reduce overspending" in query_lower
+            ):
+                total_spending = (
+                    transactions_df["amount"].sum() if not transactions_df.empty else 0
+                )
+                income = st.session_state.budget_data.get("2025-06", {}).get(
+                    "income", 4000.0
+                )
                 if total_spending > income * 0.70:
                     response = "To save more, reduce spending to below 70% of your income and increase savings contributions."
                 else:
                     response = "You’re on track! Consider increasing savings by 10% of your income to build a stronger buffer."
-    
+
             st.write("**Response:**", response)
         else:
             st.warning("Please enter a question.")
