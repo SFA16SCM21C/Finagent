@@ -384,22 +384,64 @@ with col2:
     # LLM Query Section
     st.markdown('<h3 class="section-header">LLM Query</h3>', unsafe_allow_html=True)
     st.write(
-        "**Instruction:** Ask specific, clear questions about your finances, referencing your dashboard data like savings progress, budget, or spending habits (e.g., 'What’s my savings progress?' or 'How can I save more?'). Seek actionable advice, such as 'Should I adjust my budget?' or 'How to reduce overspending?', to get practical suggestions based on your savings plan, balance, and transactions. Experiment with different queries to refine your prompts."
+        "**Instruction:** Ask specific, clear questions about your finances, referencing your dashboard data like savings progress, budget, or spending habits (e.g., 'What’s my spending on transportation in June?' or 'How can I save more?'). Seek actionable advice, such as 'Should I adjust my budget?' or 'How to reduce overspending?', to get practical suggestions based on your savings plan, balance, and transactions. Experiment with different queries to refine your prompts."
     )
     query = st.text_input("Ask your question", key="llm_query_input")
     if st.button("Get Response", key="get_response_button"):
         if query.strip():
-            # Simulate LLM response (placeholder until API integration)
-            savings_progress = (
-                (
-                    st.session_state.savings_plan["saved"]
-                    / st.session_state.savings_plan["goal"]
-                    * 100
+            # Convert transactions_data to DataFrame for filtering
+            transactions_df = pd.DataFrame(st.session_state.transactions_data or [])
+            transactions_df["date"] = pd.to_datetime(transactions_df["date"], errors="coerce")
+    
+            # Parse query and generate response
+            query_lower = query.lower()
+            response = "Sorry, I couldn’t understand your question. Try asking about savings, balance, or spending by category and month (e.g., 'What’s my spending on transportation in June?')."
+    
+            # Spending by category and month
+            if "spending on" in query_lower and "in" in query_lower:
+                # Extract category and month
+                parts = query_lower.split()
+                try:
+                    category_idx = parts.index("on") + 1
+                    month_idx = parts.index("in") + 1
+                    category = " ".join(parts[category_idx:month_idx-1]).capitalize()
+                    month_str = parts[month_idx]
+                    # Assume month is like "June" or "2025-06", convert to number
+                    month_num = datetime.strptime(month_str, "%B").month if month_str in ["january", "february", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december"] else int(month_str.split("-")[1]) if "-" in month_str else 6  # Default to June if unclear
+                    year = 2025  # Adjust year as needed
+    
+                    # Filter transactions
+                    month_transactions = transactions_df[
+                        (transactions_df["date"].dt.month == month_num) &
+                        (transactions_df["date"].dt.year == year) &
+                        (transactions_df["category"].str.lower() == category.lower())
+                    ]
+                    total_spending = month_transactions["amount"].sum()
+                    if not month_transactions.empty:
+                        response = f"Your spending on {category} in {month_str} {year} was €{total_spending:.2f}."
+                    else:
+                        response = f"No spending data found for {category} in {month_str} {year}."
+                except (ValueError, IndexError):
+                    response = "Please specify a valid category and month (e.g., 'What is my spending on transportation in June?')."
+    
+            # Savings progress or balance
+            elif "savings progress" in query_lower or "balance" in query_lower:
+                savings_progress = (
+                    (st.session_state.savings_plan["saved"] / st.session_state.savings_plan["goal"] * 100)
+                    if st.session_state.savings_plan["goal"] > 0
+                    else 0
                 )
-                if st.session_state.savings_plan["goal"] > 0
-                else 0
-            )
-            response = f"Based on your data: Savings progress is {savings_progress:.1f}%, Balance is €{st.session_state.balance:.2f}. Consider increasing savings if below 20% of income."
+                response = f"Based on your data: Savings progress is {savings_progress:.1f}%, Balance is €{st.session_state.balance:.2f}. Consider increasing savings if below 20% of income."
+    
+            # General advice
+            elif "how can i save more" in query_lower or "reduce overspending" in query_lower:
+                total_spending = transactions_df["amount"].sum() if not transactions_df.empty else 0
+                income = st.session_state.budget_data.get("2025-06", {}).get("income", 4000.0)
+                if total_spending > income * 0.70:
+                    response = "To save more, reduce spending to below 70% of your income and increase savings contributions."
+                else:
+                    response = "You’re on track! Consider increasing savings by 10% of your income to build a stronger buffer."
+    
             st.write("**Response:**", response)
         else:
             st.warning("Please enter a question.")
