@@ -1,5 +1,5 @@
 FinAgent Dashboard
-FinAgent is a financial dashboard application designed to help users manage their budgets, track spending, and plan savings. Built using Python and Streamlit, this project provides an interactive and user-friendly interface for visualizing financial data, analyzing spending habits, and setting financial goals. While the app is fully functional locally, it is not hosted dynamically due to deployment challenges. Instead, screenshots are provided to showcase its features.
+FinAgent is a financial dashboard application designed to help users manage their budgets, track spending, and plan savings. Built using Python and Streamlit, this project provides an interactive and user-friendly interface for visualizing financial data, analyzing spending habits, and setting financial goals. While the app is fully functional locally, it is not hosted dynamically due to deployment challenges. Instead, screenshots are provided to showcase its features. Initially, we explored using the Plaid API to fetch actual transaction data, but due to a limited dataset, we switched to generating sample data to properly demonstrate the project's capabilities.
 
 Project Overview
 The goal of FinAgent is to empower users with a simple yet powerful tool to take control of their personal finances. The dashboard allows users to:
@@ -40,12 +40,14 @@ How This Project Helps
 FinAgent offers several benefits:
 
 For Users:
+
 Provides a clear overview of financial health through visual data.
 Helps in setting and achieving savings goals with a dedicated planner.
 Offers actionable insights through AI-driven financial advice.
 
 
 For Developers:
+
 Serves as a practical example of building a full-stack app with Python.
 Demonstrates best practices in code structure, testing, and automation.
 Provides a template for integrating data visualization and AI features.
@@ -73,7 +75,7 @@ Mobile Optimization: Ensure the UI is responsive for mobile devices.
 
 
 Screenshots
-To get a sense of how the FinAgent dashboard looks and feels, please refer to the screenshots in the screenshots/ directory of this repository. These images showcase the layout, charts, and interactive elements of the app.
+To get a sense of how the FinAgent dashboard looks and feels, please refer to the screenshots folder within the project repository, which contains captured screenshots showcasing the layout, charts, and interactive elements of the app.
 
 Apologies for Not Hosting This Project
 Due to technical challenges with deployment, we were unable to host a live version of the FinAgent dashboard. We apologize for this limitation but encourage you to explore the screenshots for a visual representation of the project.
