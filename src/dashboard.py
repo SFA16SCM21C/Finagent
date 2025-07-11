@@ -1,4 +1,3 @@
-# src/dashboard.py
 import streamlit as st
 import base64
 import os
@@ -149,9 +148,7 @@ else:
 
 # First Row: Logo and Header
 st.markdown('<div class="dashboard-row">', unsafe_allow_html=True)
-col1, col2 = st.columns(
-    [10, 70]
-)  # 20rem logo, remaining space for header (proportional to 80rem)
+col1, col2 = st.columns([10, 70])
 with col1:
     st.markdown('<div class="logo-area">', unsafe_allow_html=True)
     logo_path = "data/finagent_logo.jpg"
@@ -180,8 +177,8 @@ st.markdown("</div>", unsafe_allow_html=True)
 # Second Row: Budget Distribution and Spending Analysis
 st.markdown(
     '<div class="dashboard-row">', unsafe_allow_html=True
-)  # New row for columns
-col1, col2 = st.columns(2)  # Two equal-width columns
+)
+col1, col2 = st.columns(2)
 with col1:
     # Budget Distribution (Pie Chart with Dropdown)
     months = list(st.session_state.budget_data.keys())
@@ -258,7 +255,7 @@ st.markdown("</div>", unsafe_allow_html=True)
 st.markdown(
     '<div class="dashboard-row">', unsafe_allow_html=True
 )  # New row for columns
-col1, col2 = st.columns(2)  # Two equal-width columns
+col1, col2 = st.columns(2)
 with col1:
     # Savings Plan Section
     st.markdown('<h3 class="section-header">Savings Plan</h3>', unsafe_allow_html=True)
@@ -314,11 +311,11 @@ with col1:
                     except Exception as e:
                         st.error(f"Failed to save plan: {e}")
                     else:
-                        st.rerun()  # Refresh the page
+                        st.rerun()
     else:
         st.markdown(f'<div class="savings-plan">', unsafe_allow_html=True)
         st.write(f"**{st.session_state.savings_plan['name']}**")
-        col_1, col_2 = st.columns([3, 1])  # Adjusted for better layout
+        col_1, col_2 = st.columns([3, 1])
         with col_1:
             progress = (
                 st.session_state.savings_plan["saved"]
@@ -376,7 +373,7 @@ with col1:
                     except Exception as e:
                         st.error(f"Failed to update savings plan: {e}")
                     else:
-                        st.rerun()  # Refresh the page
+                        st.rerun()
                 else:
                     st.error("Insufficient balance or invalid amount.")
         st.markdown("</div>", unsafe_allow_html=True)
@@ -432,7 +429,7 @@ with col2:
                         ]
                         else int(month_str.split("-")[1]) if "-" in month_str else 6
                     )  # Default to June if unclear
-                    year = 2025  # Adjust year as needed
+                    year = 2025
 
                     # Filter transactions
                     month_transactions = transactions_df[
