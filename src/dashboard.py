@@ -175,9 +175,7 @@ with col2:
 st.markdown("</div>", unsafe_allow_html=True)
 
 # Second Row: Budget Distribution and Spending Analysis
-st.markdown(
-    '<div class="dashboard-row">', unsafe_allow_html=True
-)
+st.markdown('<div class="dashboard-row">', unsafe_allow_html=True)
 col1, col2 = st.columns(2)
 with col1:
     # Budget Distribution (Pie Chart with Dropdown)
