@@ -394,7 +394,7 @@ with col2:
 
             # Parse query and generate response
             query_lower = query.lower()
-            response = "Sorry, I couldn’t understand your question. Try asking about savings, balance, or spending by category and month (e.g., 'What’s my spending on transportation in June?')."
+            response = "Sorry, I couldn’t understand your question. Try asking about savings, balance, or spending by category and month"
 
             # Spending by category and month
             if "spending on" in query_lower and "in" in query_lower:
