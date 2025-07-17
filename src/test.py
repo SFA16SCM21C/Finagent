@@ -19,5 +19,7 @@ prompt = "What is the capital of France?"
 inputs = tokenizer(prompt, return_tensors="pt").to(
     "cuda" if torch.cuda.is_available() else "cpu"
 )
+
+# Testing output
 outputs = model.generate(**inputs, max_length=50)
 print(tokenizer.decode(outputs[0], skip_special_tokens=True))
