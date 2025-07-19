@@ -15,5 +15,7 @@ model = PeftModel.from_pretrained(model, lora_model)
 # Test inference
 prompt = "What is the capital of France?"
 inputs = tokenizer(prompt, return_tensors="pt").to("cuda" if torch.cuda.is_available() else "cpu")
+
+# Print output
 outputs = model.generate(**inputs, max_length=50)
 print(tokenizer.decode(outputs[0], skip_special_tokens=True))
