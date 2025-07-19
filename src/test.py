@@ -22,4 +22,6 @@ inputs = tokenizer(prompt, return_tensors="pt").to(
 
 # Testing output
 outputs = model.generate(**inputs, max_length=50)
+
+# Print output
 print(tokenizer.decode(outputs[0], skip_special_tokens=True))
