@@ -2,15 +2,15 @@ from transformers import AutoModelForCausalLM, AutoTokenizer
 from peft import PeftModel
 import torch
 
-# Load base model with low memory usage
+# Load base model and tokenizer
 base_model = "meta-llama/Meta-Llama-3-8B"
 tokenizer = AutoTokenizer.from_pretrained(base_model)
 tokenizer.pad_token = tokenizer.eos_token
 model = AutoModelForCausalLM.from_pretrained(
     base_model,
-    low_cpu_mem_usage=True,
+    ignore_mismatched_sizes=True,  # Add this to ignore size mismatches
     torch_dtype=torch.float16,
-    device_map="auto"  # Automatically handles offloading to CPU/disk if needed
+    device_map="auto"
 )
 
 # Apply LoRA adapters
@@ -19,6 +19,6 @@ model = PeftModel.from_pretrained(model, lora_model)
 
 # Test inference
 prompt = "What is the capital of France?"
-inputs = tokenizer(prompt, return_tensors="pt").to(model.device)
+inputs = tokenizer(prompt, return_tensors="pt").to("cuda" if torch.cuda.is_available() else "cpu")
 outputs = model.generate(**inputs, max_length=50)
 print(tokenizer.decode(outputs[0], skip_special_tokens=True))
