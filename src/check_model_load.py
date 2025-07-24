@@ -1,22 +1,20 @@
-from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
+from transformers import AutoModelForCausalLM, AutoTokenizer
 from peft import PeftModel
 import torch
 
 try:
-    # Set up quantization to reduce memory usage
-    quantization_config = BitsAndBytesConfig(
-        load_in_8bit=True, bnb_8bit_compute_dtype=torch.float16
-    )
-
     # Load tokenizer
     base_model = "meta-llama/Meta-Llama-3-8B"
     tokenizer = AutoTokenizer.from_pretrained(base_model)
+    tokenizer.pad_token = tokenizer.eos_token
 
-    # Load base model with quantization
+    # Load base model on CPU with disk offload
     model = AutoModelForCausalLM.from_pretrained(
         base_model,
-        quantization_config=quantization_config,
-        device_map="cpu",  # Force CPU to avoid CUDA issues
+        torch_dtype=torch.float16,  # Lower precision
+        device_map="cpu",  # Force CPU
+        offload_folder="offload",
+        offload_state_dict=True,
     )
 
     # Apply LoRA adapters
