@@ -5,8 +5,7 @@ import torch
 try:
     # Set up quantization to reduce memory usage
     quantization_config = BitsAndBytesConfig(
-        load_in_8bit=True,
-        bnb_8bit_compute_dtype=torch.float16
+        load_in_8bit=True, bnb_8bit_compute_dtype=torch.float16
     )
 
     # Load tokenizer
@@ -17,7 +16,7 @@ try:
     model = AutoModelForCausalLM.from_pretrained(
         base_model,
         quantization_config=quantization_config,
-        device_map="cpu"  # Force CPU to avoid CUDA issues
+        device_map="cpu",  # Force CPU to avoid CUDA issues
     )
 
     # Apply LoRA adapters
