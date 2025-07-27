@@ -1,4 +1,5 @@
 .env
+offload/
 venv/
 __pycache__/
 *.pyc
