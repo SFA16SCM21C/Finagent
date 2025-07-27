@@ -11,7 +11,7 @@ try:
     # Load base model on CPU with disk offload
     model = AutoModelForCausalLM.from_pretrained(
         base_model,
-        torch_dtype=torch.float16,  # Lower precision
+        torch_dtype=torch.float16,
         device_map="cpu",
         offload_folder="offload",
         offload_state_dict=True,
