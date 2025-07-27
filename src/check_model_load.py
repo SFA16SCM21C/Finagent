@@ -21,6 +21,6 @@ try:
     lora_model = "FinGPT/fingpt-mt_llama3-8b_lora"
     model = PeftModel.from_pretrained(model, lora_model)
 
-    print("Model loaded successfully!")
+    print("Model was loaded successfully!")
 except Exception as e:
     print(f"Model loading failed: {e}")
