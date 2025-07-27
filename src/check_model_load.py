@@ -12,7 +12,7 @@ try:
     model = AutoModelForCausalLM.from_pretrained(
         base_model,
         torch_dtype=torch.float16,  # Lower precision
-        device_map="cpu",  # Force CPU
+        device_map="cpu",
         offload_folder="offload",
         offload_state_dict=True,
     )
