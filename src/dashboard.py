@@ -358,9 +358,9 @@ with col1:
                     st.error("Insufficient balance or invalid amount.")
         st.markdown("</div>", unsafe_allow_html=True)
 with col2:
-    # Placeholder for Dynamic Spending Insights
+    # Dynamic Spending Insights Placeholder
     st.markdown('<h4 style="color: #0c49a6; font-family: Roboto, sans-serif;">Dynamic Spending Insights</h4>', unsafe_allow_html=True)
-    st.write("**TBD**: This feature is under development. Stay tuned for enhanced financial analysis tools!")
+    st.write("TBD, we will build going ahead")
 st.markdown("</div>", unsafe_allow_html=True)
 
 # Wrap entire dashboard content in <div class="dashboard-container">
