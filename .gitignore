@@ -3,3 +3,5 @@ offload/
 venv/
 __pycache__/
 *.pyc
+finagent/
+docs/
