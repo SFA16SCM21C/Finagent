@@ -358,7 +358,7 @@ with col1:
                     st.error("Insufficient balance or invalid amount.")
         st.markdown("</div>", unsafe_allow_html=True)
 with col2:
-    # Dynamic Spending Insights Placeholder
+    # Dynamic Spending Insights
     st.markdown('<h4 style="color: #0c49a6; font-family: Roboto, sans-serif;">Dynamic Spending Insights</h4>', unsafe_allow_html=True)
     st.write("TBD, we will build going ahead")
 st.markdown("</div>", unsafe_allow_html=True)
