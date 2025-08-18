@@ -1,6 +1,5 @@
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from peft import PeftModel
-from accelerate import init_empty_weights, load_checkpoint_and_dispatch
 from huggingface_hub import login
 import torch
 from dotenv import load_dotenv
@@ -23,21 +22,13 @@ try:
     tokenizer = AutoTokenizer.from_pretrained(base_model, token=token)
     tokenizer.pad_token = tokenizer.eos_token
 
-    # Initialize model with empty weights
-    with init_empty_weights():
-        model = AutoModelForCausalLM.from_pretrained(
-            base_model,
-            torch_dtype=torch.float16
-        )
-
-    # Load and dispatch in chunks
-    model = load_checkpoint_and_dispatch(
-        model,
-        checkpoint=base_model,
+    # Load the model with device_map="auto" for automatic device placement
+    model = AutoModelForCausalLM.from_pretrained(
+        base_model,
+        torch_dtype=torch.float16,
         device_map="auto",
-        offload_folder="offload",
-        offload_state_dict=True,
-        dtype=torch.float16
+        low_cpu_mem_usage=True,
+        token=token
     )
 
     # Apply LoRA adapters for Llama-2-7b
@@ -49,5 +40,11 @@ except Exception as e:
 # Test the model with a prompt
 prompt = "Hello, how are you?"
 inputs = tokenizer(prompt, return_tensors="pt")
+
+# Move inputs to the device of the model's first parameter
+first_param_device = next(model.parameters()).device
+inputs = {k: v.to(first_param_device) for k, v in inputs.items()}
+
+# Generate output
 outputs = model.generate(**inputs)
 print(tokenizer.decode(outputs[0], skip_special_tokens=True))
