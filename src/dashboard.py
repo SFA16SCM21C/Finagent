@@ -361,17 +361,20 @@ with col2:
     # Dynamic Spending Insights with Dropdowns
     st.markdown('<h4 style="color: #0c49a6; font-family: Roboto, sans-serif;">Dynamic Spending Insights</h4>', unsafe_allow_html=True)
     st.write("Select a query type and month to analyze your financial data.")
-    # Dropdowns for query type and month
-    query_types = [
-        "Spending Analysis",
-        "Savings Progress",
-        "Overspending Analysis",
-        "Budget Distribution",
-        "Transaction Summary"
-    ]
-    months = list(st.session_state.budget_data.keys())
-    selected_query = st.selectbox("Select Query Type", query_types, key="query_type_select")
-    selected_month = st.selectbox("Select Month", months, index=months.index("2025-06") if "2025-06" in months else 0, key="month_select")
+    # Use columns to place dropdowns side by side
+    col1, col2 = st.columns(2)
+    with col1:
+        query_types = [
+            "Spending Analysis",
+            "Savings Progress",
+            "Overspending Analysis",
+            "Budget Distribution",
+            "Transaction Summary"
+        ]
+        selected_query = st.selectbox("Select Query Type", query_types, key="query_type_select")
+    with col2:
+        months = list(st.session_state.budget_data.keys())
+        selected_month = st.selectbox("Select Month", months, index=months.index("2025-06") if "2025-06" in months else 0, key="month_select")
 
     if st.button("Generate Insight", key="generate_insight_button"):
         transactions_df = pd.DataFrame(st.session_state.transactions_data or [])
