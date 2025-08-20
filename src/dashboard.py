@@ -233,7 +233,7 @@ with col2:
     st.write(f"**Debt Strategy**: {debt_strategy}")
 st.markdown("</div>", unsafe_allow_html=True)
 
-# Third Row: Savings Plan and Dynamic Spending Insights Placeholder
+# Third Row: Savings Plan and Dynamic Spending Insights
 st.markdown('<div class="dashboard-row">', unsafe_allow_html=True)
 col1, col2 = st.columns(2)
 with col1:
@@ -358,9 +358,78 @@ with col1:
                     st.error("Insufficient balance or invalid amount.")
         st.markdown("</div>", unsafe_allow_html=True)
 with col2:
-    # Dynamic Spending Insights
+    # Dynamic Spending Insights with Dropdowns
     st.markdown('<h4 style="color: #0c49a6; font-family: Roboto, sans-serif;">Dynamic Spending Insights</h4>', unsafe_allow_html=True)
-    st.write("TBD, we will build going ahead")
+    st.write("Select a query type and month to analyze your financial data.")
+    # Dropdowns for query type and month
+    query_types = [
+        "Spending Analysis",
+        "Savings Progress",
+        "Overspending Analysis",
+        "Budget Distribution",
+        "Transaction Summary"
+    ]
+    months = list(st.session_state.budget_data.keys())
+    selected_query = st.selectbox("Select Query Type", query_types, key="query_type_select")
+    selected_month = st.selectbox("Select Month", months, index=months.index("2025-06") if "2025-06" in months else 0, key="month_select")
+
+    if st.button("Generate Insight", key="generate_insight_button"):
+        transactions_df = pd.DataFrame(st.session_state.transactions_data or [])
+        transactions_df["date"] = pd.to_datetime(transactions_df["date"], errors="coerce")
+        budget = st.session_state.budget_data[selected_month]
+        df_month = transactions_df[
+            (
+                transactions_df["date"].dt.to_period("M")
+                == pd.to_datetime(selected_month).to_period("M")
+            )
+            & (transactions_df["amount"] > 0)
+        ]
+        spending = df_month.groupby("category")["amount"].sum().to_dict()
+        total_spending = df_month["amount"].sum()
+        income = budget.get("income", 4000.0)
+        wants_spending = (
+            spending.get("Shopping", 0)
+            + spending.get("Entertainment", 0)
+            + spending.get("Travel", 0)
+        )
+        savings_debt_spending = spending.get("Other", 0) + st.session_state.savings_plan.get("saved", 0)
+
+        if selected_query == "Spending Analysis":
+            st.write(f"**Spending Breakdown for {selected_month}:**")
+            st.bar_chart(spending, color="#002a69")
+            st.write(f"Total Spending: €{total_spending:.2f}")
+        elif selected_query == "Savings Progress":
+            savings_progress = (
+                st.session_state.savings_plan["saved"]
+                / max(st.session_state.savings_plan["goal"], 1)
+                * 100
+                if st.session_state.savings_plan["goal"] > 0
+                else 0
+            )
+            st.write(f"**Savings Progress for {selected_month}:**")
+            st.progress(savings_progress / 100, text=f"{int(savings_progress)}%")
+            st.write(f"Goal: €{st.session_state.savings_plan['goal']:.2f}, Saved: €{st.session_state.savings_plan['saved']:.2f}")
+        elif selected_query == "Overspending Analysis":
+            st.write(f"**Overspending Analysis for {selected_month}:**")
+            if wants_spending > income * 0.30:
+                st.write(f"Wants spending (€{wants_spending:.2f}) exceeds 30% of income (€{income * 0.30:.2f}). Consider reducing discretionary expenses.")
+            else:
+                st.write(f"Wants spending (€{wants_spending:.2f}) is within 30% of income. No overspending detected.")
+        elif selected_query == "Budget Distribution":
+            st.write(f"**Budget Distribution for {selected_month}:**")
+            fig = px.pie(
+                values=[budget["needs"]["amount"], budget["wants"]["amount"], budget["savings_debt"]["amount"]],
+                names=["Needs", "Wants", "Savings/Debt"],
+                color_discrete_sequence=["#002769", "#4c68af", "#a5b1d6"]
+            )
+            st.plotly_chart(fig, use_container_width=True)
+        elif selected_query == "Transaction Summary":
+            st.write(f"**Transaction Summary for {selected_month}:**")
+            st.write(f"Total Spending: €{total_spending:.2f}")
+            avg_spending = total_spending / len(df_month) if len(df_month) > 0 else 0
+            st.write(f"Average Transaction: €{avg_spending:.2f}")
+            top_category = max(spending.items(), key=lambda x: x[1], default=("None", 0))
+            st.write(f"Top Category: {top_category[0]} (€{top_category[1]:.2f})")
 st.markdown("</div>", unsafe_allow_html=True)
 
 # Wrap entire dashboard content in <div class="dashboard-container">
