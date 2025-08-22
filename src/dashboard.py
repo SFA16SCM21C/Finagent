@@ -84,11 +84,9 @@ st.markdown(
         font-family: 'Roboto', sans-serif !important;
         padding-top: 6px !important; /* Adjust padding to align with dropdown height */
         padding-bottom: 6px !important; /* Symmetrical padding for vertical centering */
-        margin: 15px;
     }
     button[data-testid="stButton"]#generate_insight_button:hover {
         background-color: #2c75d4 !important;
-        margin: 15px;
     }
     </style>
     """,
@@ -393,7 +391,7 @@ with col2:
         months = list(st.session_state.budget_data.keys())
         selected_month = st.selectbox("Select Month", months, index=months.index("2025-06") if "2025-06" in months else 0, key="month_select")
     with col3:
-        st.markdown('<div style="margin-top: 15px;">', unsafe_allow_html=True)  # Adjust vertical alignment
+        st.markdown('<div style="margin-top: 6px;">', unsafe_allow_html=True)  # Adjust vertical alignment
         if st.button("Generate Insight", key="generate_insight_button", help="Generate financial insights based on your selection"):
             transactions_df = pd.DataFrame(st.session_state.transactions_data or [])
             transactions_df["date"] = pd.to_datetime(transactions_df["date"], errors="coerce")
