@@ -73,6 +73,19 @@ st.markdown(
     button[data-testid="stButton"]#add_to_plan_button:hover {
         background-color: #2c75d4 !important;
     }
+    /* Target the Generate Insight button by its key with margin adjustment */
+    button[data-testid="stButton"]#generate_insight_button {
+        background-color: #013787 !important;
+        color: white !important;
+        border-radius: 5px !important;
+        border: none !important;
+        cursor: pointer !important;
+        font-family: 'Roboto', sans-serif !important;
+        margin-top: -25px !important; /* Added to align with dropdowns */
+    }
+    button[data-testid="stButton"]#generate_insight_button:hover {
+        background-color: #2c75d4 !important;
+    }
     </style>
     """,
     unsafe_allow_html=True,
@@ -376,7 +389,8 @@ with col2:
         months = list(st.session_state.budget_data.keys())
         selected_month = st.selectbox("Select Month", months, index=months.index("2025-06") if "2025-06" in months else 0, key="month_select")
     with col3:
-        st.markdown('<div style="margin-top: 15px;">', unsafe_allow_html=True)  # Restored margin for alignment
+        st.write("Click on the button below")  # Instruction text
+        st.markdown('<div style="margin-top: 15px;">', unsafe_allow_html=True)  # Margin to align with dropdowns
         if st.button("Generate Insight", key="generate_insight_button", help="Generate financial insights based on your selection"):
             transactions_df = pd.DataFrame(st.session_state.transactions_data or [])
             transactions_df["date"] = pd.to_datetime(transactions_df["date"], errors="coerce")
