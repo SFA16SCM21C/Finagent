@@ -376,7 +376,7 @@ with col2:
         months = list(st.session_state.budget_data.keys())
         selected_month = st.selectbox("Select Month", months, index=months.index("2025-06") if "2025-06" in months else 0, key="month_select")
     with col3:
-        st.write("Click on the button below")  # Added text above the button
+        st.markdown('<div style="margin-top: 15px;">', unsafe_allow_html=True)  # Restored margin for alignment
         if st.button("Generate Insight", key="generate_insight_button", help="Generate financial insights based on your selection"):
             transactions_df = pd.DataFrame(st.session_state.transactions_data or [])
             transactions_df["date"] = pd.to_datetime(transactions_df["date"], errors="coerce")
@@ -434,6 +434,7 @@ with col2:
                 st.write(f"Average Transaction: €{avg_spending:.2f}")
                 top_category = max(spending.items(), key=lambda x: x[1], default=("None", 0))
                 st.write(f"Top Category: {top_category[0]} (€{top_category[1]:.2f})")
+        st.markdown('</div>', unsafe_allow_html=True)  # Close the div
 st.markdown("</div>", unsafe_allow_html=True)
 
 # Wrap entire dashboard content in <div class="dashboard-container">
