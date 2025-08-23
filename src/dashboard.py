@@ -60,23 +60,23 @@ st.markdown(
     button[data-testid="stFormSubmitButton"]#save_plan_button:hover {
         background-color: #2c75d4 !important;
     }
-    /* Target the Add to Plan button by its key */
-    button[data-testid="stButton"]#add_to_plan_button {
+    /* Target the Add to Plan button by its key with nested selector for specificity */
+    .stButton#add_to_plan_button > button {
         background-color: #002769 !important; /* Darkest color */
-        color: white !important;
+        color: white !important; /* White text */
         padding: 5px 15px !important;
         border-radius: 5px !important;
         border: none !important;
         cursor: pointer !important;
         font-family: 'Roboto', sans-serif !important;
     }
-    button[data-testid="stButton"]#add_to_plan_button:hover {
+    .stButton#add_to_plan_button > button:hover {
         background-color: #2c75d4 !important;
     }
-    /* Target the Generate Insight button by its key with margin adjustment */
-    button[data-testid="stButton"]#generate_insight_button {
+    /* Target the Generate Insight button by its key with nested selector for specificity */
+    .stButton#generate_insight_button > button {
         background-color: #002769 !important; /* Darkest color */
-        color: white !important;
+        color: white !important; /* White text */
         padding: 5px 15px !important;
         border-radius: 5px !important;
         border: none !important;
@@ -84,7 +84,7 @@ st.markdown(
         font-family: 'Roboto', sans-serif !important;
         margin-top: 15px !important; /* Align with dropdowns */
     }
-    button[data-testid="stButton"]#generate_insight_button:hover {
+    .stButton#generate_insight_button > button:hover {
         background-color: #2c75d4 !important;
     }
     </style>
