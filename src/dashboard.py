@@ -49,7 +49,7 @@ st.markdown(
     
     /* Target the specific form submit button by its key */
     button[data-testid="stFormSubmitButton"]#save_plan_button {
-        background-color: #002769 !important; /* Darkest color from the bunch */
+        background-color: #0c49a6 !important; /* Original green color */
         color: white !important;
         padding: 5px 15px !important;
         border-radius: 5px !important;
@@ -63,7 +63,7 @@ st.markdown(
     /* Target the Add to Plan button by its key */
     button[data-testid="stButton"]#add_to_plan_button {
         background-color: #002769 !important; /* Darkest color from the bunch */
-        color: white !important;
+        color: white !important; /* White text */
         padding: 5px 15px !important;
         border-radius: 5px !important;
         border: none !important;
@@ -76,7 +76,7 @@ st.markdown(
     /* Target the Generate Insight button by its key with margin adjustment */
     button[data-testid="stButton"]#generate_insight_button {
         background-color: #002769 !important; /* Darkest color from the bunch */
-        color: white !important;
+        color: white !important; /* White text */
         padding: 5px 15px !important;
         border-radius: 5px !important;
         border: none !important;
