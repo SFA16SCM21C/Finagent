@@ -62,8 +62,6 @@ st.markdown(
     }
     /* Target the Add to Plan button by its key with nested selector for specificity */
     .stButton#add_to_plan_button > button {
-        background-color: #002769 !important; /* Darkest color */
-        color: white !important; /* White text */
         padding: 5px 15px !important;
         border-radius: 5px !important;
         border: none !important;
@@ -75,8 +73,6 @@ st.markdown(
     }
     /* Target the Generate Insight button by its key with nested selector for specificity */
     .stButton#generate_insight_button > button {
-        background-color: #002769 !important; /* Darkest color */
-        color: white !important; /* White text */
         padding: 5px 15px !important;
         border-radius: 5px !important;
         border: none !important;
