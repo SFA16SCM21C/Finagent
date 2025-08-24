@@ -62,7 +62,7 @@ st.markdown(
     }
     /* Target the Add to Plan button by its key */
     button[data-testid="stButton"]#add_to_plan_button {
-        background-color: #002769 !important; /* Darkest color */
+        background-color: #013787 !important;
         color: white !important;
         padding: 5px 15px !important;
         border-radius: 5px !important;
@@ -75,7 +75,7 @@ st.markdown(
     }
     /* Target the Generate Insight button by its key with margin adjustment */
     button[data-testid="stButton"]#generate_insight_button {
-        background-color: #002769 !important; /* Darkest color */
+        background-color: #013787 !important;
         color: white !important;
         padding: 5px 15px !important;
         border-radius: 5px !important;
