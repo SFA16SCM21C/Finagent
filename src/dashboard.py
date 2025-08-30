@@ -5,6 +5,16 @@ import json
 import pandas as pd
 import plotly.express as px
 from datetime import datetime
+from huggingface_hub import get_inference_endpoint, login
+
+# Authenticate with Hugging Face (use secrets for production)
+if "hf_token" not in st.session_state:
+    # Replace with your actual token or use st.secrets["HF_TOKEN"]
+    st.session_state.hf_token = "your_huggingface_api_token"
+login(st.session_state.hf_token)
+
+# Retrieve the Inference Endpoint (assuming it's deployed as per previous instructions)
+endpoint = get_inference_endpoint("fingpt-inference-endpoint")  # Use your endpoint name
 
 # Custom CSS for layout with green theme, 80rem max width, and 2rem top margin
 st.markdown(
@@ -62,7 +72,7 @@ st.markdown(
     }
     /* Target the Add to Plan button by its key */
     button[data-testid="stButton"]#add_to_plan_button {
-        background-color: #013787 !important;
+        background-color: #002769 !important; /* Darkest color */
         color: white !important;
         padding: 5px 15px !important;
         border-radius: 5px !important;
@@ -75,7 +85,7 @@ st.markdown(
     }
     /* Target the Generate Insight button by its key with margin adjustment */
     button[data-testid="stButton"]#generate_insight_button {
-        background-color: #013787 !important;
+        background-color: #002769 !important; /* Darkest color */
         color: white !important;
         padding: 5px 15px !important;
         border-radius: 5px !important;
@@ -374,16 +384,9 @@ with col1:
 with col2:
     # Dynamic Spending Insights with Dropdowns and Button
     st.markdown('<h4 style="color: #0c49a6; font-family: Roboto, sans-serif;">Dynamic Spending Insights</h4>', unsafe_allow_html=True)
-    # Use columns to place text and button in row 1
-    col1, col2 = st.columns(2)
-    with col1:
-        st.write("Select a query type and month to analyze your financial data.")
-    with col2:
-        if st.button("Generate Insight", key="generate_insight_button", help="Generate financial insights based on your selection"):
-            # Logic here (placeholder for now)
-            st.write("Insight generated!")
-    # Use columns to place dropdowns in row 2
-    col1, col2 = st.columns(2)
+    st.write("Select a query type and month to analyze your financial data.")
+    # Use columns to place dropdowns and button side by side
+    col1, col2, col3 = st.columns([1, 1, 1])  # Adjusted for three elements
     with col1:
         query_types = [
             "Spending Analysis",
@@ -396,34 +399,29 @@ with col2:
     with col2:
         months = list(st.session_state.budget_data.keys())
         selected_month = st.selectbox("Select Month", months, index=months.index("2025-06") if "2025-06" in months else 0, key="month_select")
-
-    # Insight generation logic (moved below the dropdowns)
-    if 'generate_insight_button' in st.session_state and st.session_state.generate_insight_button:
-        transactions_df = pd.DataFrame(st.session_state.transactions_data or [])
-        transactions_df["date"] = pd.to_datetime(transactions_df["date"], errors="coerce")
-        budget = st.session_state.budget_data[selected_month]
-        df_month = transactions_df[
-            (
-                transactions_df["date"].dt.to_period("M")
-                == pd.to_datetime(selected_month).to_period("M")
+    with col3:
+        st.markdown('<div style="margin-top: 15px;">', unsafe_allow_html=True)  # Margin to align with dropdowns
+        if st.button("Generate Insight", key="generate_insight_button", help="Generate financial insights based on your selection"):
+            # Prepare data summary for the prompt
+            transactions_df = pd.DataFrame(st.session_state.transactions_data or [])
+            transactions_df["date"] = pd.to_datetime(transactions_df["date"], errors="coerce")
+            budget = st.session_state.budget_data[selected_month]
+            df_month = transactions_df[
+                (
+                    transactions_df["date"].dt.to_period("M")
+                    == pd.to_datetime(selected_month).to_period("M")
+                )
+                & (transactions_df["amount"] > 0)
+            ]
+            spending = df_month.groupby("category")["amount"].sum().to_dict()
+            total_spending = df_month["amount"].sum()
+            income = budget.get("income", 4000.0)
+            wants_spending = (
+                spending.get("Shopping", 0)
+                + spending.get("Entertainment", 0)
+                + spending.get("Travel", 0)
             )
-            & (transactions_df["amount"] > 0)
-        ]
-        spending = df_month.groupby("category")["amount"].sum().to_dict()
-        total_spending = df_month["amount"].sum()
-        income = budget.get("income", 4000.0)
-        wants_spending = (
-            spending.get("Shopping", 0)
-            + spending.get("Entertainment", 0)
-            + spending.get("Travel", 0)
-        )
-        savings_debt_spending = spending.get("Other", 0) + st.session_state.savings_plan.get("saved", 0)
-
-        if selected_query == "Spending Analysis":
-            st.write(f"**Spending Breakdown for {selected_month}:**")
-            st.bar_chart(spending, color="#002a69")
-            st.write(f"Total Spending: €{total_spending:.2f}")
-        elif selected_query == "Savings Progress":
+            savings_debt_spending = spending.get("Other", 0) + st.session_state.savings_plan.get("saved", 0)
             savings_progress = (
                 st.session_state.savings_plan["saved"]
                 / max(st.session_state.savings_plan["goal"], 1)
@@ -431,30 +429,42 @@ with col2:
                 if st.session_state.savings_plan["goal"] > 0
                 else 0
             )
-            st.write(f"**Savings Progress for {selected_month}:**")
-            st.progress(savings_progress / 100, text=f"{int(savings_progress)}%")
-            st.write(f"Goal: €{st.session_state.savings_plan['goal']:.2f}, Saved: €{st.session_state.savings_plan['saved']:.2f}")
-        elif selected_query == "Overspending Analysis":
-            st.write(f"**Overspending Analysis for {selected_month}:**")
-            if wants_spending > income * 0.30:
-                st.write(f"Wants spending (€{wants_spending:.2f}) exceeds 30% of income (€{income * 0.30:.2f}). Consider reducing discretionary expenses.")
-            else:
-                st.write(f"Wants spending (€{wants_spending:.2f}) is within 30% of income. No overspending detected.")
-        elif selected_query == "Budget Distribution":
-            st.write(f"**Budget Distribution for {selected_month}:**")
-            fig = px.pie(
-                values=[budget["needs"]["amount"], budget["wants"]["amount"], budget["savings_debt"]["amount"]],
-                names=["Needs", "Wants", "Savings/Debt"],
-                color_discrete_sequence=["#002769", "#4c68af", "#a5b1d6"]
-            )
-            st.plotly_chart(fig, use_container_width=True)
-        elif selected_query == "Transaction Summary":
-            st.write(f"**Transaction Summary for {selected_month}:**")
-            st.write(f"Total Spending: €{total_spending:.2f}")
             avg_spending = total_spending / len(df_month) if len(df_month) > 0 else 0
-            st.write(f"Average Transaction: €{avg_spending:.2f}")
             top_category = max(spending.items(), key=lambda x: x[1], default=("None", 0))
-            st.write(f"Top Category: {top_category[0]} (€{top_category[1]:.2f})")
+
+            # Craft the prompt for FinGPT
+            data_summary = f"""
+            Month: {selected_month}
+            Income: €{income:.2f}
+            Total Spending: €{total_spending:.2f}
+            Spending Breakdown: {spending}
+            Wants Spending: €{wants_spending:.2f}
+            Savings/Debt Spending: €{savings_debt_spending:.2f}
+            Savings Goal: €{st.session_state.savings_plan.get('goal', 0):.2f}
+            Savings Saved: €{st.session_state.savings_plan.get('saved', 0):.2f}
+            Savings Progress: {savings_progress:.2f}%
+            Average Transaction: €{avg_spending:.2f}
+            Top Category: {top_category[0]} (€{top_category[1]:.2f})
+            Budget Needs: €{budget['needs']['amount']:.2f}
+            Budget Wants: €{budget['wants']['amount']:.2f}
+            Budget Savings/Debt: €{budget['savings_debt']['amount']:.2f}
+            """
+            prompt = f"Generate a detailed {selected_query} insight for {selected_month} based on the following financial data: {data_summary}. Provide actionable recommendations."
+
+            # Call the Inference Endpoint
+            try:
+                endpoint.wait()  # Ensure endpoint is ready
+                response = endpoint.client.text_generation(
+                    prompt,
+                    max_new_tokens=200,
+                    temperature=0.7,
+                    top_p=0.9
+                )
+                st.write("**Generated Insight:**")
+                st.write(response)
+            except Exception as e:
+                st.error(f"Failed to generate insight: {str(e)}")
+        st.markdown('</div>', unsafe_allow_html=True)  # Close the div
 st.markdown("</div>", unsafe_allow_html=True)
 
 # Wrap entire dashboard content in <div class="dashboard-container">
