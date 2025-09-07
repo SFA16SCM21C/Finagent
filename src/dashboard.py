@@ -98,6 +98,8 @@ if "balance" not in st.session_state:
     st.session_state.balance = 10000.0
 if "savings_plan" not in st.session_state:
     st.session_state.savings_plan = {"name": "", "goal": 0.0, "saved": 0.0}
+if "insight_result" not in st.session_state:
+    st.session_state.insight_result = ""  # Initialize insight result
 
 # Load or initialize savings plan from JSON
 if os.path.exists(saving_path):
@@ -410,21 +412,25 @@ with col2:
             avg_spending = total_spending / len(df_month) if len(df_month) > 0 else 0
             top_category = max(spending.items(), key=lambda x: x[1], default=("None", 0))
 
-            st.markdown(f"**{selected_query} Recommendation for {selected_month}:**")
             if selected_query == "Spending Analysis":
-                st.write(f"Your total spending of €{total_spending:.2f} is {'' if total_spending <= income else 'above '}your income of €{income:.2f}. Consider reviewing high-spend categories like {top_category[0]} (€{top_category[1]:.2f}).")
+                st.session_state.insight_result = f"Your total spending of €{total_spending:.2f} is {'' if total_spending <= income else 'above '}your income of €{income:.2f}. Consider reviewing high-spend categories like {top_category[0]} (€{top_category[1]:.2f})."
             elif selected_query == "Savings Progress":
-                st.write(f"You've saved €{st.session_state.savings_plan['saved']:.2f} toward your €{st.session_state.savings_plan['goal']:.2f} goal ({savings_progress:.1f}%). Increase contributions by €{(st.session_state.savings_plan['goal'] - st.session_state.savings_plan['saved']) / 12:.2f}/month to meet it in a year.")
+                st.session_state.insight_result = f"You've saved €{st.session_state.savings_plan['saved']:.2f} toward your €{st.session_state.savings_plan['goal']:.2f} goal ({savings_progress:.1f}%). Increase contributions by €{(st.session_state.savings_plan['goal'] - st.session_state.savings_plan['saved']) / 12:.2f}/month to meet it in a year."
             elif selected_query == "Overspending Analysis":
                 if wants_spending > income * 0.30:
-                    st.write(f"Your wants spending (€{wants_spending:.2f}) exceeds 30% of your income (€{income * 0.30:.2f}). Reduce discretionary expenses to stay within budget.")
+                    st.session_state.insight_result = f"Your wants spending (€{wants_spending:.2f}) exceeds 30% of your income (€{income * 0.30:.2f}). Reduce discretionary expenses to stay within budget."
                 else:
-                    st.write(f"Your wants spending (€{wants_spending:.2f}) is within 30% of your income. Maintain this to avoid overspending.")
+                    st.session_state.insight_result = f"Your wants spending (€{wants_spending:.2f}) is within 30% of your income. Maintain this to avoid overspending."
             elif selected_query == "Budget Distribution":
-                st.write(f"Your budget allocates €{budget['needs']['amount']:.2f} to needs, €{budget['wants']['amount']:.2f} to wants, and €{budget['savings_debt']['amount']:.2f} to savings/debt. Ensure savings/debt allocation remains at least 20% of income (€{income * 0.20:.2f}).")
+                st.session_state.insight_result = f"Your budget allocates €{budget['needs']['amount']:.2f} to needs, €{budget['wants']['amount']:.2f} to wants, and €{budget['savings_debt']['amount']:.2f} to savings/debt. Ensure savings/debt allocation remains at least 20% of income (€{income * 0.20:.2f})."
             elif selected_query == "Transaction Summary":
-                st.write(f"You spent €{total_spending:.2f} across {len(df_month)} transactions, averaging €{avg_spending:.2f} per transaction. Focus on reducing spending in {top_category[0]} (€{top_category[1]:.2f}) to optimize your budget.")
+                st.session_state.insight_result = f"You spent €{total_spending:.2f} across {len(df_month)} transactions, averaging €{avg_spending:.2f} per transaction. Focus on reducing spending in {top_category[0]} (€{top_category[1]:.2f}) to optimize your budget."
         st.markdown('</div>', unsafe_allow_html=True)
+    
+    # Display the insight result below dropdowns and button
+    if st.session_state.insight_result:
+        st.markdown(f"**{selected_query} Recommendation for {selected_month}:**")
+        st.write(st.session_state.insight_result)
 st.markdown("</div>", unsafe_allow_html=True)
 
 # Close dashboard container
