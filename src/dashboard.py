@@ -10,7 +10,7 @@ from huggingface_hub import get_inference_endpoint, login
 # Authenticate with Hugging Face (use secrets for production)
 if "hf_token" not in st.session_state:
     # Replace with your actual token or use st.secrets["HF_TOKEN"]
-    st.session_state.hf_token = os.getenv("HF_TOKEN")
+    st.session_state.hf_token = "your_huggingface_api_token"
 login(st.session_state.hf_token)
 
 # Retrieve the Inference Endpoint (assuming it's deployed as per previous instructions)
