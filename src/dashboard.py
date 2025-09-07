@@ -70,19 +70,6 @@ st.markdown(
     button[data-testid="stButton"]#add_to_plan_button:hover {
         background-color: #2c75d4 !important;
     }
-    button[data-testid="stButton"]#generate_insight_button {
-        background-color: #002769 !important;
-        color: white !important;
-        padding: 5px 15px !important;
-        border-radius: 5px !important;
-        border: none !important;
-        cursor: pointer !important;
-        font-family: 'Roboto', sans-serif !important;
-        margin-top: 15px !important;
-    }
-    button[data-testid="stButton"]#generate_insight_button:hover {
-        background-color: #2c75d4 !important;
-    }
     </style>
     """,
     unsafe_allow_html=True,
@@ -293,7 +280,7 @@ with col1:
                         st.success("Plan saved successfully!")
                     except PermissionError:
                         st.error(
-                            "Permission denied to write to saving.json. Please check file permissions."
+                            "Permission denied to write to saving.json. Check file permissions."
                         )
                     except Exception as e:
                         st.error(f"Failed to save plan: {e}")
@@ -352,7 +339,7 @@ with col1:
                         )
                     except PermissionError:
                         st.error(
-                            "Permission denied to write to saving.json. Please check file permissions."
+                            "Permission denied to write to saving.json. Check file permissions."
                         )
                     except Exception as e:
                         st.error(f"Failed to update savings plan: {e}")
@@ -362,10 +349,10 @@ with col1:
                     st.error("Insufficient balance or invalid amount.")
         st.markdown("</div>", unsafe_allow_html=True)
 with col2:
-    # Dynamic Spending Insights with Dropdowns and Button
+    # Dynamic Spending Insights with Dropdowns and Advice
     st.markdown('<h4 style="color: #0c49a6; font-family: Roboto, sans-serif;">Dynamic Spending Insights</h4>', unsafe_allow_html=True)
-    st.write("Select a query type and month to analyze your financial data.")
-    col1, col2, col3 = st.columns([1, 1, 1])
+    st.write("Select a query type and month to view financial recommendations.")
+    col1, col2 = st.columns([1, 1])
     with col1:
         query_types = [
             "Spending Analysis",
@@ -378,53 +365,51 @@ with col2:
     with col2:
         months = list(st.session_state.budget_data.keys())
         selected_month = st.selectbox("Select Month", months, index=months.index("2025-06") if "2025-06" in months else 0, key="month_select")
-    with col3:
-        st.markdown('<div style="margin-top: 15px;">', unsafe_allow_html=True)
-        if st.button("Generate Insight", key="generate_insight_button", help="Generate financial insights based on your selection"):
-            transactions_df = pd.DataFrame(st.session_state.transactions_data or [])
-            transactions_df["date"] = pd.to_datetime(transactions_df["date"], errors="coerce")
-            budget = st.session_state.budget_data[selected_month]
-            df_month = transactions_df[
-                (
-                    transactions_df["date"].dt.to_period("M")
-                    == pd.to_datetime(selected_month).to_period("M")
-                )
-                & (transactions_df["amount"] > 0)
-            ]
-            spending = df_month.groupby("category")["amount"].sum().to_dict()
-            total_spending = df_month["amount"].sum()
-            income = budget.get("income", 4000.0)
-            wants_spending = (
-                spending.get("Shopping", 0)
-                + spending.get("Entertainment", 0)
-                + spending.get("Travel", 0)
-            )
-            savings_debt_spending = spending.get("Other", 0) + st.session_state.savings_plan.get("saved", 0)
-            savings_progress = (
-                st.session_state.savings_plan["saved"]
-                / max(st.session_state.savings_plan["goal"], 1)
-                * 100
-                if st.session_state.savings_plan["goal"] > 0
-                else 0
-            )
-            avg_spending = total_spending / len(df_month) if len(df_month) > 0 else 0
-            top_category = max(spending.items(), key=lambda x: x[1], default=("None", 0))
+    
+    # Generate and display advice
+    transactions_df = pd.DataFrame(st.session_state.transactions_data or [])
+    transactions_df["date"] = pd.to_datetime(transactions_df["date"], errors="coerce")
+    budget = st.session_state.budget_data[selected_month]
+    df_month = transactions_df[
+        (
+            transactions_df["date"].dt.to_period("M")
+            == pd.to_datetime(selected_month).to_period("M")
+        )
+        & (transactions_df["amount"] > 0)
+    ]
+    spending = df_month.groupby("category")["amount"].sum().to_dict()
+    total_spending = df_month["amount"].sum()
+    income = budget.get("income", 4000.0)
+    wants_spending = (
+        spending.get("Shopping", 0)
+        + spending.get("Entertainment", 0)
+        + spending.get("Travel", 0)
+    )
+    savings_debt_spending = spending.get("Other", 0) + st.session_state.savings_plan.get("saved", 0)
+    savings_progress = (
+        st.session_state.savings_plan["saved"]
+        / max(st.session_state.savings_plan["goal"], 1)
+        * 100
+        if st.session_state.savings_plan["goal"] > 0
+        else 0
+    )
+    avg_spending = total_spending / len(df_month) if len(df_month) > 0 else 0
+    top_category = max(spending.items(), key=lambda x: x[1], default=("None", 0))
 
-            st.markdown(f"**{selected_query} Recommendation for {selected_month}:**")
-            if selected_query == "Spending Analysis":
-                st.write(f"Your total spending of €{total_spending:.2f} is {'' if total_spending <= income else 'above '}your income of €{income:.2f}. Consider reviewing high-spend categories like {top_category[0]} (€{top_category[1]:.2f}).")
-            elif selected_query == "Savings Progress":
-                st.write(f"You've saved €{st.session_state.savings_plan['saved']:.2f} toward your €{st.session_state.savings_plan['goal']:.2f} goal ({savings_progress:.1f}%). Increase contributions by €{(st.session_state.savings_plan['goal'] - st.session_state.savings_plan['saved']) / 12:.2f}/month to meet it in a year.")
-            elif selected_query == "Overspending Analysis":
-                if wants_spending > income * 0.30:
-                    st.write(f"Your wants spending (€{wants_spending:.2f}) exceeds 30% of your income (€{income * 0.30:.2f}). Reduce discretionary expenses to stay within budget.")
-                else:
-                    st.write(f"Your wants spending (€{wants_spending:.2f}) is within 30% of your income. Maintain this to avoid overspending.")
-            elif selected_query == "Budget Distribution":
-                st.write(f"Your budget allocates €{budget['needs']['amount']:.2f} to needs, €{budget['wants']['amount']:.2f} to wants, and €{budget['savings_debt']['amount']:.2f} to savings/debt. Ensure savings/debt allocation remains at least 20% of income (€{income * 0.20:.2f}).")
-            elif selected_query == "Transaction Summary":
-                st.write(f"You spent €{total_spending:.2f} across {len(df_month)} transactions, averaging €{avg_spending:.2f} per transaction. Focus on reducing spending in {top_category[0]} (€{top_category[1]:.2f}) to optimize your budget.")
-        st.markdown('</div>', unsafe_allow_html=True)
+    st.markdown(f"**{selected_query} Recommendation for {selected_month}:**")
+    if selected_query == "Spending Analysis":
+        st.write(f"Your total spending of €{total_spending:.2f} is {'' if total_spending <= income else 'above '}your income of €{income:.2f}. Consider reviewing high-spend categories like {top_category[0]} (€{top_category[1]:.2f}).")
+    elif selected_query == "Savings Progress":
+        st.write(f"You've saved €{st.session_state.savings_plan['saved']:.2f} toward your €{st.session_state.savings_plan['goal']:.2f} goal ({savings_progress:.1f}%). Increase contributions by €{(st.session_state.savings_plan['goal'] - st.session_state.savings_plan['saved']) / 12:.2f}/month to meet it in a year.")
+    elif selected_query == "Overspending Analysis":
+        if wants_spending > income * 0.30:
+            st.write(f"Your wants spending (€{wants_spending:.2f}) exceeds 30% of your income (€{income * 0.30:.2f}). Reduce discretionary expenses to stay within budget.")
+        else:
+            st.write(f"Your wants spending (€{wants_spending:.2f}) is within 30% of your income. Maintain this to avoid overspending.")
+    elif selected_query == "Budget Distribution":
+        st.write(f"Your budget allocates €{budget['needs']['amount']:.2f} to needs, €{budget['wants']['amount']:.2f} to wants, and €{budget['savings_debt']['amount']:.2f} to savings/debt. Ensure savings/debt allocation remains at least 20% of income (€{income * 0.20:.2f}).")
+    elif selected_query == "Transaction Summary":
+        st.write(f"You spent €{total_spending:.2f} across {len(df_month)} transactions, averaging €{avg_spending:.2f} per transaction. Focus on reducing spending in {top_category[0]} (€{top_category[1]:.2f}) to optimize your budget.")
 st.markdown("</div>", unsafe_allow_html=True)
 
 # Close dashboard container
