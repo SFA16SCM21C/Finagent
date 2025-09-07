@@ -6,48 +6,46 @@ import pandas as pd
 import plotly.express as px
 from datetime import datetime
 
-# Custom CSS for layout with green theme, 80rem max width, and 2rem top margin
+# Custom CSS for layout with green theme, 98rem max width, and 2rem top margin
 st.markdown(
     """
     <style>
     /* Target Streamlit's main content container */
     .block-container {
         max-width: 98rem !important;
-        margin: -5rem auto !important; /* Corrected from -5rem to 2rem for proper centering */
+        margin: -5rem auto !important;
         background-color: transparent !important;
     }
     .dashboard-row {
         display: flex;
         align-items: center;
-        max-height: 80px; /* Match logo height */
-        overflow: hidden; /* Prevent overflow beyond 80px */
+        max-height: 80px;
+        overflow: hidden;
     }
     .logo-area {
-        width: 5rem; /* 320px at 16px base font size */
+        width: 5rem;
         padding: 10px;
         text-align: center;
     }
     .header-area {
         flex-grow: 1;
         padding: 10px;
-        background-color: #0c49a6; /* Green main color */
-        border-radius: 8px; /* Rounded corners on all sides */
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Subtle shadow for depth */
-        max-height: 80px; /* Match row and logo height */
-        line-height: 60px; /* Center text vertically within 80px */
+        background-color: #0c49a6;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        max-height: 80px;
+        line-height: 60px;
         text-align: center;
-        color: white; /* White text for contrast */
-        font-family: 'Roboto', sans-serif; /* Professional font */
-        font-size: 24px; /* Base size for header */
+        color: white;
+        font-family: 'Roboto', sans-serif;
+        font-size: 24px;
     }
     .section-header {
-        font-size: 28px; /* One size bigger than header (24px + 4px) */
-        color: #0c49a6; /* Green for section headers */
-        font-family: 'Roboto', sans-serif; /* Consistent font */
-        margin-bottom: 10px; /* Space below heading */
+        font-size: 28px;
+        color: #0c49a6;
+        font-family: 'Roboto', sans-serif;
+        margin-bottom: 10px;
     }
-    
-    /* Target the specific form submit button by its key */
     button[data-testid="stFormSubmitButton"]#save_plan_button {
         background-color: #0c49a6 !important;
         color: white !important;
@@ -60,9 +58,8 @@ st.markdown(
     button[data-testid="stFormSubmitButton"]#save_plan_button:hover {
         background-color: #2c75d4 !important;
     }
-    /* Target the Add to Plan button by its key */
     button[data-testid="stButton"]#add_to_plan_button {
-        background-color: #002769 !important; /* Darkest color */
+        background-color: #002769 !important;
         color: white !important;
         padding: 5px 15px !important;
         border-radius: 5px !important;
@@ -73,16 +70,15 @@ st.markdown(
     button[data-testid="stButton"]#add_to_plan_button:hover {
         background-color: #2c75d4 !important;
     }
-    /* Target the Generate Insight button by its key with margin adjustment */
     button[data-testid="stButton"]#generate_insight_button {
-        background-color: #002769 !important; /* Darkest color */
+        background-color: #002769 !important;
         color: white !important;
         padding: 5px 15px !important;
         border-radius: 5px !important;
         border: none !important;
         cursor: pointer !important;
         font-family: 'Roboto', sans-serif !important;
-        margin-top: 15px !important; /* Align with dropdowns */
+        margin-top: 15px !important;
     }
     button[data-testid="stButton"]#generate_insight_button:hover {
         background-color: #2c75d4 !important;
@@ -99,7 +95,7 @@ transactions_path = "data/transactions_cleaned.json"
 
 # Initialize or load balance and single savings plan
 if "balance" not in st.session_state:
-    st.session_state.balance = 10000.0  # Initial balance
+    st.session_state.balance = 10000.0
 if "savings_plan" not in st.session_state:
     st.session_state.savings_plan = {"name": "", "goal": 0.0, "saved": 0.0}
 
@@ -274,7 +270,6 @@ with col1:
                 else:
                     st.session_state.savings_plan["name"] = plan_name.strip()
                     st.session_state.savings_plan["goal"] = plan_goal
-                    # Update budget for the current month
                     current_month = "2025-06"
                     if current_month in st.session_state.budget_data:
                         st.session_state.budget_data[current_month]["savings_debt"][
@@ -282,7 +277,6 @@ with col1:
                         ] += plan_goal
                         with open(budget_path, "w") as f:
                             json.dump(st.session_state.budget_data, f, indent=4)
-                    # Generate unique txnId and add transaction
                     txn_id = f"txn_{int(datetime.now().timestamp())}"
                     new_transaction = {
                         "txnId": txn_id,
@@ -293,7 +287,6 @@ with col1:
                     st.session_state.transactions_data.append(new_transaction)
                     with open(transactions_path, "w") as f:
                         json.dump(st.session_state.transactions_data, f, indent=4)
-                    # Save the plan
                     try:
                         with open(saving_path, "w") as f:
                             json.dump(st.session_state.savings_plan, f, indent=4)
@@ -334,7 +327,6 @@ with col1:
                 if amount <= st.session_state.balance and amount > 0:
                     st.session_state.savings_plan["saved"] += amount
                     st.session_state.balance -= amount
-                    # Update budget for the current month
                     current_month = "2025-06"
                     if current_month in st.session_state.budget_data:
                         st.session_state.budget_data[current_month]["savings_debt"][
@@ -342,7 +334,6 @@ with col1:
                         ] += amount
                         with open(budget_path, "w") as f:
                             json.dump(st.session_state.budget_data, f, indent=4)
-                    # Generate unique txnId and add transaction
                     txn_id = f"txn_{int(datetime.now().timestamp())}"
                     new_transaction = {
                         "txnId": txn_id,
@@ -353,7 +344,6 @@ with col1:
                     st.session_state.transactions_data.append(new_transaction)
                     with open(transactions_path, "w") as f:
                         json.dump(st.session_state.transactions_data, f, indent=4)
-                    # Save the updated plan
                     try:
                         with open(saving_path, "w") as f:
                             json.dump(st.session_state.savings_plan, f, indent=4)
@@ -375,8 +365,7 @@ with col2:
     # Dynamic Spending Insights with Dropdowns and Button
     st.markdown('<h4 style="color: #0c49a6; font-family: Roboto, sans-serif;">Dynamic Spending Insights</h4>', unsafe_allow_html=True)
     st.write("Select a query type and month to analyze your financial data.")
-    # Use columns to place dropdowns and button side by side
-    col1, col2, col3 = st.columns([1, 1, 1])  # Adjusted for three elements
+    col1, col2, col3 = st.columns([1, 1, 1])
     with col1:
         query_types = [
             "Spending Analysis",
@@ -390,7 +379,7 @@ with col2:
         months = list(st.session_state.budget_data.keys())
         selected_month = st.selectbox("Select Month", months, index=months.index("2025-06") if "2025-06" in months else 0, key="month_select")
     with col3:
-        st.markdown('<div style="margin-top: 15px;">', unsafe_allow_html=True)  # Margin to align with dropdowns
+        st.markdown('<div style="margin-top: 15px;">', unsafe_allow_html=True)
         if st.button("Generate Insight", key="generate_insight_button", help="Generate financial insights based on your selection"):
             transactions_df = pd.DataFrame(st.session_state.transactions_data or [])
             transactions_df["date"] = pd.to_datetime(transactions_df["date"], errors="coerce")
@@ -411,47 +400,33 @@ with col2:
                 + spending.get("Travel", 0)
             )
             savings_debt_spending = spending.get("Other", 0) + st.session_state.savings_plan.get("saved", 0)
+            savings_progress = (
+                st.session_state.savings_plan["saved"]
+                / max(st.session_state.savings_plan["goal"], 1)
+                * 100
+                if st.session_state.savings_plan["goal"] > 0
+                else 0
+            )
+            avg_spending = total_spending / len(df_month) if len(df_month) > 0 else 0
+            top_category = max(spending.items(), key=lambda x: x[1], default=("None", 0))
 
+            st.markdown(f"**{selected_query} Recommendation for {selected_month}:**")
             if selected_query == "Spending Analysis":
-                st.write(f"**Spending Breakdown for {selected_month}:**")
-                st.bar_chart(spending, color="#002a69")
-                st.write(f"Total Spending: €{total_spending:.2f}")
+                st.write(f"Your total spending of €{total_spending:.2f} is {'' if total_spending <= income else 'above '}your income of €{income:.2f}. Consider reviewing high-spend categories like {top_category[0]} (€{top_category[1]:.2f}).")
             elif selected_query == "Savings Progress":
-                savings_progress = (
-                    st.session_state.savings_plan["saved"]
-                    / max(st.session_state.savings_plan["goal"], 1)
-                    * 100
-                    if st.session_state.savings_plan["goal"] > 0
-                    else 0
-                )
-                st.write(f"**Savings Progress for {selected_month}:**")
-                st.progress(savings_progress / 100, text=f"{int(savings_progress)}%")
-                st.write(f"Goal: €{st.session_state.savings_plan['goal']:.2f}, Saved: €{st.session_state.savings_plan['saved']:.2f}")
+                st.write(f"You've saved €{st.session_state.savings_plan['saved']:.2f} toward your €{st.session_state.savings_plan['goal']:.2f} goal ({savings_progress:.1f}%). Increase contributions by €{(st.session_state.savings_plan['goal'] - st.session_state.savings_plan['saved']) / 12:.2f}/month to meet it in a year.")
             elif selected_query == "Overspending Analysis":
-                st.write(f"**Overspending Analysis for {selected_month}:**")
                 if wants_spending > income * 0.30:
-                    st.write(f"Wants spending (€{wants_spending:.2f}) exceeds 30% of income (€{income * 0.30:.2f}). Consider reducing discretionary expenses.")
+                    st.write(f"Your wants spending (€{wants_spending:.2f}) exceeds 30% of your income (€{income * 0.30:.2f}). Reduce discretionary expenses to stay within budget.")
                 else:
-                    st.write(f"Wants spending (€{wants_spending:.2f}) is within 30% of income. No overspending detected.")
+                    st.write(f"Your wants spending (€{wants_spending:.2f}) is within 30% of your income. Maintain this to avoid overspending.")
             elif selected_query == "Budget Distribution":
-                st.write(f"**Budget Distribution for {selected_month}:**")
-                fig = px.pie(
-                    values=[budget["needs"]["amount"], budget["wants"]["amount"], budget["savings_debt"]["amount"]],
-                    names=["Needs", "Wants", "Savings/Debt"],
-                    color_discrete_sequence=["#002769", "#4c68af", "#a5b1d6"]
-                )
-                st.plotly_chart(fig, use_container_width=True)
+                st.write(f"Your budget allocates €{budget['needs']['amount']:.2f} to needs, €{budget['wants']['amount']:.2f} to wants, and €{budget['savings_debt']['amount']:.2f} to savings/debt. Ensure savings/debt allocation remains at least 20% of income (€{income * 0.20:.2f}).")
             elif selected_query == "Transaction Summary":
-                st.write(f"**Transaction Summary for {selected_month}:**")
-                st.write(f"Total Spending: €{total_spending:.2f}")
-                avg_spending = total_spending / len(df_month) if len(df_month) > 0 else 0
-                st.write(f"Average Transaction: €{avg_spending:.2f}")
-                top_category = max(spending.items(), key=lambda x: x[1], default=("None", 0))
-                st.write(f"Top Category: {top_category[0]} (€{top_category[1]:.2f})")
-        st.markdown('</div>', unsafe_allow_html=True)  # Close the div
+                st.write(f"You spent €{total_spending:.2f} across {len(df_month)} transactions, averaging €{avg_spending:.2f} per transaction. Focus on reducing spending in {top_category[0]} (€{top_category[1]:.2f}) to optimize your budget.")
+        st.markdown('</div>', unsafe_allow_html=True)
 st.markdown("</div>", unsafe_allow_html=True)
 
-# Wrap entire dashboard content in <div class="dashboard-container">
+# Close dashboard container
 st.markdown("</div>", unsafe_allow_html=True)
-
 st.markdown('<h1 class="header-area"></h1>', unsafe_allow_html=True)
