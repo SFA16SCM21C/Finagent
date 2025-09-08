@@ -1,152 +1,189 @@
-import boto3
-import json
+import pdfplumber
 import re
+import json
 import os
 
-# AWS client
-textract = boto3.client('textract')
-
-def get_tables_from_textract(response):
+def convert_date_format(date_str):
     """
-    Parses Textract response to extract tables, rows, and cell text.
+    Converts date from DD.MM.YYYY to YYYY-MM-DD format.
     
     Parameters:
-    response (dict): Textract analyze_document response.
+    date_str (str): Date in DD.MM.YYYY format.
     
     Returns:
-    list: List of tables, each as list of rows (list of cell texts).
+    str: Date in YYYY-MM-DD format, or None if invalid.
     """
-    blocks = response['Blocks']
-    tables = []
-    current_table = []
-    current_row = []
-    for block in blocks:
-        if block['BlockType'] == 'TABLE':
-            # Start new table
-            if current_table:
-                tables.append(current_table)
-            current_table = []
-        elif block['BlockType'] == 'CELL':
-            row_index = block['RowIndex']
-            col_index = block['ColumnIndex']
-            if 'Relationships' in block:
-                cell_text = ' '.join([get_text_from_block(blocks, rel['Ids'][0]) for rel in block['Relationships'] if rel['Type'] == 'CHILD'])
-            else:
-                cell_text = ''
-            # New row if col_index resets to 1
-            if col_index == 1:
-                if current_row:
-                    current_table.append(current_row)
-                current_row = [cell_text]
-            else:
-                current_row.append(cell_text)
-    if current_table:
-        tables.append(current_table)
-    return tables
+    try:
+        day, month, year = date_str.split('.')
+        return f"{year}-{month.zfill(2)}-{day.zfill(2)}"
+    except (ValueError, AttributeError):
+        return None
 
-def get_text_from_block(blocks, block_id):
+def parse_description(description):
     """
-    Retrieves text from a block by ID.
-    """
-    for block in blocks:
-        if block['Id'] == block_id and 'Text' in block:
-            return block['Text']
-    return ''
-
-def parse_transaction(row):
-    """
-    Parses a table row into transaction dictionary.
+    Parses the multi-line description string into merchant, category, additional details, and value date.
     
     Parameters:
-    row (list): [description, booking_date, amount]
+    description (str): The raw description text from the table cell.
     
     Returns:
-    dict: Transaction data or None if invalid.
+    dict: Parsed components including merchant, category, additional_details, and value_date.
     """
-    if len(row) != 3:
-        return None
-    description = row[0].replace('\n', ' ').strip()
-    booking_date = row[1].strip()
-    amount_str = row[2].strip()
-    
-    # Parse description
-    parts = re.split(r'\s{2,}', description)  # Split on multiple spaces for multi-part
-    if not parts:
-        return None
-    merchant = parts[0]
-    remaining = parts[1:]
-    
-    category = ""
-    additional_details = []
-    value_date = None
     value_date_pattern = re.compile(r'Fecha de valor (\d{2}\.\d{2}\.\d{4})')
+    value_date = None
+    parts = [line.strip() for line in description.split('\n') if line.strip()]
     
-    for part in remaining:
+    if not parts:
+        return {"merchant": "", "category": "", "additional_details": "", "value_date": None}
+    
+    merchant = parts[0]
+    category = parts[1].replace(' • ', ' ') if len(parts) > 1 else ""
+    additional_details = []
+    
+    for dl in parts[2:]:
+        match = value_date_pattern.search(dl)
+        if match:
+            value_date = match.group(1)
+        else:
+            additional_details.append(dl.replace(' • ', ' '))  # Clean dot markers in additional details as well
+    
+    # If value date is embedded in earlier lines, extract it
+    for i, part in enumerate(parts):
         match = value_date_pattern.search(part)
         if match:
             value_date = match.group(1)
-        elif 'Mastercard •' in part:
-            category = part.replace(' • ', ' ')
-        else:
-            additional_details.append(part)
-    
-    if not value_date or not booking_date or not amount_str:
-        return None
-    
-    # Parse amount
-    amount_clean = amount_str.replace('€', '').replace('.', '').replace(',', '.').strip()
-    amount = float(amount_clean)
-    
-    # Convert dates
-    def convert_date(date_str):
-        day, month, year = date_str.split('.')
-        return f"{year}-{month.zfill(2)}-{day.zfill(2)}"
+            parts[i] = part.replace(f'Fecha de valor {value_date}', '').strip()
     
     return {
-        "merchant_or_person": merchant,
-        "category_or_type": category,
-        "additional_details": ' '.join(additional_details).replace(' • ', ' '),
-        "value_date": convert_date(value_date),
-        "booking_date": convert_date(booking_date),
-        "amount": amount
+        "merchant": merchant,
+        "category": category,
+        "additional_details": ' '.join(additional_details),
+        "value_date": value_date
     }
 
 def extract_transactions(pdf_path):
     """
-    Extracts transactions from PDF using Textract and parses into JSON format.
+    Extracts transaction data from the PDF bank statement using table detection as primary method,
+    with fallback to line-by-line parsing.
     
     Parameters:
     pdf_path (str): Path to the PDF file.
     
     Returns:
-    list: List of transaction dictionaries.
+    list: List of dictionaries, each representing a transaction.
     """
-    with open(pdf_path, 'rb') as file:
-        response = textract.analyze_document(
-            Document={'Bytes': file.read()},
-            FeatureTypes=['TABLES']
-        )
-    tables = get_tables_from_textract(response)
+    if not os.path.exists(pdf_path):
+        raise FileNotFoundError(f"The file {pdf_path} does not exist.")
+    
     transactions = []
-    for table in tables:
-        # Skip header row (assuming first row is header)
-        for row in table[1:]:
-            transaction = parse_transaction(row)
-            if transaction:
-                transactions.append(transaction)
+    with pdfplumber.open(pdf_path) as pdf:
+        for page in pdf.pages:
+            text = page.extract_text()
+            if not text or "Resumen" in text or "Nota" in text:
+                continue  # Skip summary and notes pages
+            
+            # Primary: Extract tables
+            tables = page.extract_tables()
+            if tables:
+                for table in tables:
+                    in_transaction = False
+                    for row in table:
+                        if not row or all(not cell for cell in row):
+                            continue
+                        
+                        # Detect transaction table header (requires all three columns to distinguish from summary)
+                        row_str = [str(cell) for cell in row]
+                        if "Descripción" in row_str and "Fecha de reserva" in row_str and "Cantidad" in row_str:
+                            in_transaction = True
+                            continue
+                        
+                        if not in_transaction:
+                            continue
+                        
+                        # Parse row: description (col 0), booking_date (col 1), amount (col 2)
+                        description = str(row[0]) if len(row) > 0 else ""
+                        booking_date = str(row[1]) if len(row) > 1 and re.match(r'^\d{2}\.\d{2}\.\d{4}$', str(row[1]).strip()) else None
+                        amount_str = str(row[2]) if len(row) > 2 and re.match(r'^[+-]?\d{1,3}(?:\.\d{3})*,\d{2}€$', str(row[2]).strip()) else ""
+                        
+                        if description and amount_str and booking_date:
+                            # Parse amount
+                            amount_clean = amount_str.replace('€', '').strip().replace('.', '').replace(',', '.')
+                            amount = float(amount_clean)
+                            
+                            # Parse description
+                            parsed_desc = parse_description(description)
+                            value_date = parsed_desc["value_date"]
+                            
+                            # Only add if it's a valid transaction (e.g., has value_date)
+                            if value_date:
+                                transactions.append({
+                                    "merchant_or_person": parsed_desc["merchant"],
+                                    "category_or_type": parsed_desc["category"],
+                                    "additional_details": parsed_desc["additional_details"],
+                                    "value_date": convert_date_format(value_date),
+                                    "booking_date": convert_date_format(booking_date),
+                                    "amount": amount
+                                })
+            else:
+                # Fallback: Line-by-line parsing for non-tabular pages
+                lines = text.strip().split('\n')
+                current_transaction = []
+                in_transaction_section = False
+                
+                for line in lines:
+                    line = line.strip()
+                    if not line:
+                        continue
+                    
+                    if "Descripción" in line and "Fecha de reserva" in line and "Cantidad" in line:
+                        in_transaction_section = True
+                        continue
+                    
+                    if 'Extracto bancario' in line or 'hasta' in line or 'Resumen' in line or 'Nota' in line:
+                        in_transaction_section = False
+                        continue
+                    
+                    if in_transaction_section:
+                        current_transaction.append(line)
+                        
+                        if re.match(r'^[+-]?\d{1,3}(?:\.\d{3})*,\d{2}€$', line):
+                            if current_transaction:
+                                amount_str = current_transaction.pop().replace('€', '').replace('.', '').replace(',', '.')
+                                amount = float(amount_str)
+                                booking_date_str = current_transaction.pop() if current_transaction and re.match(r'^\d{2}\.\d{2}\.\d{4}$', current_transaction[-1]) else ""
+                                description = '\n'.join(current_transaction)
+                                
+                                parsed_desc = parse_description(description)
+                                value_date = parsed_desc["value_date"]
+                                
+                                if value_date and booking_date_str:
+                                    transactions.append({
+                                        "merchant_or_person": parsed_desc["merchant"],
+                                        "category_or_type": parsed_desc["category"],
+                                        "additional_details": parsed_desc["additional_details"],
+                                        "value_date": convert_date_format(value_date),
+                                        "booking_date": convert_date_format(booking_date_str),
+                                        "amount": amount
+                                    })
+                            current_transaction = []
+    
     return transactions
 
-def save_to_json(transactions, output_json_path):
+def save_to_json(transactions, output_path):
     """
-    Saves transactions to JSON file.
+    Saves the list of transactions to a JSON file.
+    
+    Parameters:
+    transactions (list): List of transaction dictionaries.
+    output_path (str): Path to the output JSON file.
     """
-    with open(output_json_path, 'w', encoding='utf-8') as json_file:
+    with open(output_path, 'w', encoding='utf-8') as json_file:
         json.dump(transactions, json_file, indent=4, ensure_ascii=False)
 
-# Usage example
 if __name__ == "__main__":
-    pdf_path = "data/August.pdf"  # Replace with your PDF path
-    output_json_path = "data/aug.json"
+    pdf_path = "data/August.pdf"  # Replace with the actual path to your PDF file
+    output_json_path = "data/aug.json"  # Output file name
+    
     try:
         extracted_transactions = extract_transactions(pdf_path)
         save_to_json(extracted_transactions, output_json_path)
